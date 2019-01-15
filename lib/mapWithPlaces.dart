@@ -75,9 +75,6 @@ class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
     final churches = await mapsPlaces.searchNearbyWithRadius(
         Location(location.latitude, location.longitude), 2500,
         type: "church");
-    if (aquariums.status == "OK") {
-      this.placesList.addAll(aquariums.results);
-    }
     if (zoo.status == "OK") {
       this.placesList.addAll(zoo.results);
     }
@@ -90,6 +87,10 @@ class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
     if (churches.status == "OK") {
       this.placesList.addAll(churches.results);
     }
+    if (aquariums.status == "OK") {
+      this.placesList.addAll(aquariums.results);
+    }
+    placesList.sort();
   }
 
   void appendMarkersToMapView() {
