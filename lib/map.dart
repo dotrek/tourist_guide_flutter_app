@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart' as LocationManager;
+import 'package:tourist_guide/main.dart';
 
 class MapWidget extends StatefulWidget {
   @override
   State createState() => MapWidgetState();
+
+  MapWidget({Key key}) : super(key: key);
 }
 
 class MapWidgetState extends State<MapWidget> {
@@ -43,18 +45,6 @@ class MapWidgetState extends State<MapWidget> {
         CameraUpdate.newCameraPosition(
             CameraPosition(target: location, zoom: 12.0)),
       );
-    }
-  }
-
-  Future<LatLng> getUserLocation() async {
-    final location = LocationManager.Location();
-    var currentUserLocation;
-    try {
-      currentUserLocation = await location.getLocation();
-      return LatLng(
-          currentUserLocation["latitude"], currentUserLocation["longitude"]);
-    } on Exception {
-      return null;
     }
   }
 }
