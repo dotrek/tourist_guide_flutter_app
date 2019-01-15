@@ -1,47 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:tourist_guide/map.dart';
 
 ///This API Key will be used for both the interactive maps as well as the static maps.
 
 const API_KEY = "***REMOVED***";
+final customTheme = ThemeData(
+  primarySwatch: Colors.blue,
+  brightness: Brightness.dark,
+  accentColor: Colors.redAccent,
+  inputDecorationTheme: InputDecorationTheme(
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(4.00)),
+    ),
+    contentPadding: EdgeInsets.symmetric(
+      vertical: 12.50,
+      horizontal: 10.00,
+    ),
+  ),
+);
 
 void main() {
   runApp(MaterialApp(
+    theme: customTheme,
     home: Scaffold(
-      appBar: AppBar(title: const Text('Google Maps demo')),
-      body: MapsDemo(),
-    ),
-  ));
-}
-
-class MapsDemo extends StatefulWidget {
-  @override
-  State createState() => MapsDemoState();
-}
-
-class MapsDemoState extends State<MapsDemo> {
-  GoogleMapController mapController;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(15.0),
-      child: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        child: GoogleMap(
-          onMapCreated: _onMapCreated,
-          options: GoogleMapOptions(
-            myLocationEnabled: true,
-          ),
+      appBar: AppBar(
+        title: const Text('Google Maps demo'),
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text("Lorem Ipsum"),
+              accountEmail: Text("It dolore"),
+            )
+          ],
         ),
       ),
-    );
-  }
-
-  void _onMapCreated(GoogleMapController controller) {
-    setState(() {
-      mapController = controller;
-    });
-  }
+      body: Column(
+        children: [MapWidget(), Expanded(child: ListView())],
+      ),
+    ),
+  ));
 }
