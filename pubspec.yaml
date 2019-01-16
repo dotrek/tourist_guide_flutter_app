@@ -16,6 +16,7 @@ dependencies:
   google_maps_flutter:
   flutter_google_places:
   swipedetector:
+  flutter_slidable:
   location:
   flutter:
     sdk: flutter

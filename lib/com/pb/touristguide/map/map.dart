@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:tourist_guide/main.dart';
+import 'package:tourist_guide/com/pb/touristguide/main.dart';
 
 class MapWidget extends StatefulWidget {
   @override
