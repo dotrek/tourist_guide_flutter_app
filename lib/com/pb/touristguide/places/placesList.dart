@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/main.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
@@ -51,61 +52,92 @@ class _PlacesListViewState extends State<PlacesListView> {
       }
 
       if (f.types?.first != null) {
-        list.add(Padding(
-          padding: EdgeInsets.only(bottom: 2.0),
-          child: Text(
-            f.types.first,
+        list.add(
+          Padding(
+            padding: EdgeInsets.only(bottom: 2.0),
+            child: Text(
+              f.types.first,
+            ),
           ),
-        ));
+        );
       }
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            leading: InkWell(
+              onTap: _handlePressButton,
+              highlightColor: Colors.lightBlueAccent,
+              splashColor: Colors.lightBlue,
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Column(
+                  children: list,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }).toList();
 
-      return Padding(
-          padding:
-              EdgeInsets.only(top: 4.0, bottom: 4.0, left: 8.0, right: 8.0),
-          child: Slidable(
-              delegate: SlidableStrechDelegate(),
+    return ListView.builder(
+        itemCount: placesWidget.length,
+        itemBuilder: (context, int index) {
+          return Padding(
+            padding:
+            EdgeInsets.only(top: 4.0, bottom: 4.0, left: 8.0, right: 8.0),
+            child: Slidable(
+              delegate: SlidableDrawerDelegate(),
               actionExtentRatio: 0.25,
               actions: <Widget>[
-                IconSlideAction(
-                  caption: "Details",
-                  color: Colors.lightGreen,
-                  icon: Icons.details,
-                  onTap: () => debugPrint("DetailsClicked"),
+                Card(
+                  child: IconSlideAction(
+                    caption: "Details",
+                    color: Colors.lightGreen,
+                    icon: Icons.details,
+                    onTap: () {
+                      setState(() {
+                        places.removeAt(index);
+                      });
+                    },
+                  ),
                 )
               ],
               secondaryActions: <Widget>[
-                IconSlideAction(
-                  caption: "Remove",
-                  color: Colors.red,
-                  icon: Icons.delete,
-                  onTap:() {
-                    debugPrint("Removed");
-                  },
+                Card(
+                  child: IconSlideAction(
+                    caption: "Remove",
+                    color: Colors.red,
+                    icon: Icons.delete,
+                    onTap: () {
+                      setState(() {
+                        GoogleMapController controller = mapWidgetKey
+                            .currentState?.mapController;
+                        controller.markers.removeWhere((Marker p) =>
+                        p.options.position == LatLng(places
+                            .elementAt(index)
+                            .geometry
+                            .location
+                            .lat, places
+                            .elementAt(index)
+                            .geometry
+                            .location
+                            .lng));
+                            places.removeAt(index);
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                          content: Text("Removed"),
+                          duration: Duration(seconds: 1),
+                        ));
+                      });
+                    },
+                  ),
                 )
               ],
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                    leading: InkWell(
-                      onTap: _handlePressButton,
-                      highlightColor: Colors.lightBlueAccent,
-                      splashColor: Colors.lightBlue,
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: list,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              )));
-    }).toList();
-
-    return ListView(shrinkWrap: true, children: placesWidget);
+              child: placesWidget.elementAt(index),
+            ),
+          );
+        });
   }
 
   Future<void> _handlePressButton() async {

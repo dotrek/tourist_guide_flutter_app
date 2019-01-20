@@ -14,7 +14,6 @@ class MapsWithPlacesView extends StatefulWidget {
 class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
   var listViewVisibility = false;
   List<PlacesSearchResult> placesList = List();
-  var mapWidgetKey = new GlobalKey<MapWidgetState>();
   double radius = 1000;
 
   @override
@@ -59,17 +58,9 @@ class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
                   getNearbyPlacesAndAppendMarkers(value);
                 },
                 min: 100,
-                max: 10000,
+                max: 5000,
               ),
               MapWidget(key: mapWidgetKey),
-              Visibility(
-                visible: listViewVisibility,
-                child: Expanded(
-                  child: PlacesListView(
-                    places: placesList,
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -78,6 +69,7 @@ class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
   }
 
   void getNearbyPlacesAndAppendMarkers(double radius) async {
+    this.placesList.clear();
     final location = await getUserLocation();
     final aquariums = await mapsPlaces.searchNearbyWithRadius(
         Location(location.latitude, location.longitude), radius,
@@ -94,19 +86,19 @@ class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
     final churches = await mapsPlaces.searchNearbyWithRadius(
         Location(location.latitude, location.longitude), radius,
         type: "church");
-    if (zoo.status == "OK") {
+    if (zoo.isOkay) {
       this.placesList.addAll(zoo.results);
     }
-    if (mosques.status == "OK") {
+    if (mosques.isOkay) {
       this.placesList.addAll(mosques.results);
     }
-    if (museums.status == "OK") {
+    if (museums.isOkay) {
       this.placesList.addAll(museums.results);
     }
-    if (churches.status == "OK") {
-      this.placesList.addAll(churches.results);
+    if (churches.isOkay) {
+      this.placesList.addAll  (churches.results);
     }
-    if (aquariums.status == "OK") {
+    if (aquariums.isOkay) {
       this.placesList.addAll(aquariums.results);
     }
     appendMarkersToMapView();
