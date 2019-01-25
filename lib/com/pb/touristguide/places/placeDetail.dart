@@ -3,17 +3,16 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/main.dart';
 
 class PlaceDetailWidget extends StatefulWidget {
+  final String placeId;
 
-  const PlaceDetailWidget(String placeId, {Key key}) : super(key: key);
-
-  String get placeId => placeId;
+  const PlaceDetailWidget({Key key, this.placeId}) : super(key: key);
 
   @override
   _PlaceDetailWidgetState createState() => _PlaceDetailWidgetState();
 }
 
 class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
-  PlacesDetailsResponse place;
+  Future<PlacesDetailsResponse> place;
 
   @override
   void initState() {
@@ -23,9 +22,17 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: buildPlaceDetailList(place.result),
-    );
+    return FutureBuilder(
+        future: place,
+        builder: (context, widgetBuilder) {
+          if (widgetBuilder.hasData) {
+            return Container(
+                child: buildPlaceDetailList(
+                    (widgetBuilder.data as PlacesDetailsResponse).result));
+          } else {
+            return Container(child: CircularProgressIndicator());
+          }
+        });
   }
 
   String buildPhotoURL(String photoReference) {
@@ -148,15 +155,6 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
   }
 
   void fetchPlaceDetail() async {
-    PlacesDetailsResponse place =
-        await mapsPlaces.getDetailsByPlaceId(widget.placeId);
-
-    if (mounted) {
-      setState(() {
-        if (place.status == "OK") {
-          this.place = place;
-        }
-      });
-    }
+    place = mapsPlaces.getDetailsByPlaceId(widget.placeId);
   }
 }

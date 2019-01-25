@@ -66,7 +66,6 @@ class _PlacesListViewState extends State<PlacesListView> {
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             leading: InkWell(
-              onTap: _handlePressButton,
               highlightColor: Colors.lightBlueAccent,
               splashColor: Colors.lightBlue,
               child: Padding(
@@ -86,7 +85,7 @@ class _PlacesListViewState extends State<PlacesListView> {
         itemBuilder: (context, int index) {
           return Padding(
             padding:
-            EdgeInsets.only(top: 4.0, bottom: 4.0, left: 8.0, right: 8.0),
+                EdgeInsets.only(top: 4.0, bottom: 4.0, left: 8.0, right: 8.0),
             child: Slidable(
               delegate: SlidableDrawerDelegate(),
               actionExtentRatio: 0.25,
@@ -98,7 +97,8 @@ class _PlacesListViewState extends State<PlacesListView> {
                     icon: Icons.details,
                     onTap: () {
                       setState(() {
-                        places.removeAt(index);
+                        var elementAt = places.elementAt(index);
+                        showDetailPlace(elementAt.placeId);
                       });
                     },
                   ),
@@ -112,23 +112,7 @@ class _PlacesListViewState extends State<PlacesListView> {
                     icon: Icons.delete,
                     onTap: () {
                       setState(() {
-                        GoogleMapController controller = mapWidgetKey
-                            .currentState?.mapController;
-                        controller.markers.removeWhere((Marker p) =>
-                        p.options.position == LatLng(places
-                            .elementAt(index)
-                            .geometry
-                            .location
-                            .lat, places
-                            .elementAt(index)
-                            .geometry
-                            .location
-                            .lng));
-                            places.removeAt(index);
-                        Scaffold.of(context).showSnackBar(SnackBar(
-                          content: Text("Removed"),
-                          duration: Duration(seconds: 1),
-                        ));
+                        showDeleteDialog(places, index);
                       });
                     },
                   ),
@@ -140,30 +124,59 @@ class _PlacesListViewState extends State<PlacesListView> {
         });
   }
 
-  Future<void> _handlePressButton() async {
-    try {
-      final center = await getUserLocation();
-      Prediction p = await PlacesAutocomplete.show(
-          context: context,
-          strictbounds: center == null ? false : true,
-          apiKey: API_KEY,
-          mode: Mode.fullscreen,
-          language: "en",
-          location: center == null
-              ? null
-              : Location(center.latitude, center.longitude),
-          radius: center == null ? null : 10000);
+  void deleteItemFromList(List<PlacesSearchResult> places, int index) {
+    var latLng = LatLng(places.elementAt(index).geometry.location.lat,
+        places.elementAt(index).geometry.location.lng);
+    GoogleMapController controller = mapWidgetKey.currentState?.mapController;
+    debugPrint(controller.markers.length.toString());
+    mapWidgetKey.currentState?.setState(() {
+      Marker marker = controller.markers
+          .firstWhere((Marker marker) => marker.options.position == latLng);
+      debugPrint("Marker do delete: $marker");
+      controller.removeMarker(marker);
+      debugPrint("markers on map: ${controller.markers.length}");
+    });
+    setState(() {
+      places.removeAt(index);
+    });
+    Scaffold.of(context).showSnackBar(SnackBar(
+      content: Text("Removed"),
+      duration: Duration(seconds: 1),
+    ));
+  }
 
-      showDetailPlace(p.placeId);
-    } catch (e) {
-      return;
-    }
+  showDeleteDialog(List<PlacesSearchResult> places, int index) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return new AlertDialog(
+          title: new Text('Delete'),
+          content: new Text('Item will be deleted'),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            new FlatButton(
+                child: new Text('Ok'),
+                onPressed: () {
+                  deleteItemFromList(places, index);
+                  Navigator.of(context).pop(true);
+                }),
+          ],
+        );
+      },
+    );
   }
 
   void showDetailPlace(String placeId) {
     if (placeId != null) {
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => PlaceDetailWidget(placeId)));
+      showDialog(
+        context: context,
+        builder: (context) => AboutDialog(
+            applicationLegalese: null,
+            children: [PlaceDetailWidget(placeId: placeId)]),
+      );
     }
   }
 }
