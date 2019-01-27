@@ -6,12 +6,13 @@ import 'package:tourist_guide/com/pb/touristguide/main.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placesList.dart';
 
-class MapsWithPlacesView extends StatefulWidget {
+class MapsWithPlacesWidget extends StatefulWidget {
   @override
-  State createState() => MapsWithPlacesViewState();
+  State createState() => MapsWithPlacesWidgetState();
 }
 
-class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
+class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
+  GoogleMapController controller = mapWidgetKey.currentState?.mapController;
   var listViewVisibility = false;
   List<PlacesSearchResult> placesList = List();
   double radius = 1000;
@@ -25,6 +26,7 @@ class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
   @override
   Widget build(BuildContext context) {
     return Slidable(
+      actionExtentRatio: 0.5,
       delegate: SlidableBehindDelegate(),
       key: ValueKey(1),
       direction: Axis.vertical,
@@ -40,9 +42,8 @@ class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
           child: Column(
             children: [
               Container(
-                width: 100.0,
                 alignment: Alignment.center,
-                child: Text('${radius.toInt()}',
+                child: Text(radius.toInt().toString(),
                     style: Theme.of(context).textTheme.display1),
               ),
               Slider(
@@ -52,7 +53,7 @@ class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
                   deleteMarkersFromMapView();
                   setState(() {
                     radius = newValue;
-                  });
+                    });
                 },
                 onChangeEnd: (value) {
                   getNearbyPlacesAndAppendMarkers(value);
@@ -70,7 +71,7 @@ class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
 
   void getNearbyPlacesAndAppendMarkers(double radius) async {
     this.placesList.clear();
-    final location = await getUserLocation();
+    final location = await getActualUserLocation();
     final aquariums = await mapsPlaces.searchNearbyWithRadius(
         Location(location.latitude, location.longitude), radius,
         type: "aquarium");
@@ -96,7 +97,7 @@ class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
       this.placesList.addAll(museums.results);
     }
     if (churches.isOkay) {
-      this.placesList.addAll  (churches.results);
+      this.placesList.addAll(churches.results);
     }
     if (aquariums.isOkay) {
       this.placesList.addAll(aquariums.results);
@@ -104,13 +105,12 @@ class MapsWithPlacesViewState extends State<MapsWithPlacesView> {
     appendMarkersToMapView();
   }
 
-  void appendMarkersToMapView() {
+  appendMarkersToMapView() {
     GoogleMapController controller = mapWidgetKey.currentState?.mapController;
     debugPrint(placesList.length.toString());
     placesList.forEach((place) {
       final markerOptions = MarkerOptions(
-          position:
-              LatLng(place.geometry.location.lat, place.geometry.location.lng),
+          position: getLatLngLocationOfPlace(place),
           infoWindowText: InfoWindowText(place.name, place.types?.first));
       controller.addMarker(markerOptions);
     });

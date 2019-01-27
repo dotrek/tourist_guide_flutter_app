@@ -21,9 +21,11 @@ class MapWidgetState extends State<MapWidget> {
           child: GoogleMap(
             onMapCreated: _onMapCreated,
             options: GoogleMapOptions(
+              minMaxZoomPreference: MinMaxZoomPreference(5, 14),
               myLocationEnabled: true,
               compassEnabled: true,
-              rotateGesturesEnabled: true,
+              scrollGesturesEnabled: false,
+              rotateGesturesEnabled: false,
             ),
           ),
         ),
@@ -39,11 +41,11 @@ class MapWidgetState extends State<MapWidget> {
   }
 
   void _animateToUserLocation() async {
-    final location = await getUserLocation();
+    final location = await getActualUserLocation();
     if (location != null) {
       mapController.animateCamera(
         CameraUpdate.newCameraPosition(
-            CameraPosition(target: location, zoom: 12.0)),
+            CameraPosition(target: location, zoom: 13.0)),
       );
     }
   }

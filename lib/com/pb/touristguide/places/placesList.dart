@@ -16,6 +16,8 @@ class PlacesListView extends StatefulWidget {
 }
 
 class _PlacesListViewState extends State<PlacesListView> {
+  GoogleMapController controller = mapWidgetKey.currentState?.mapController;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -25,51 +27,35 @@ class _PlacesListViewState extends State<PlacesListView> {
 
   ListView buildPlacesList(List<PlacesSearchResult> places) {
     final placesWidget = places.map((f) {
-      List<Widget> list = [
-        Padding(
-          padding: EdgeInsets.only(bottom: 4.0),
-          child: Text(
-            f.name,
-          ),
-        )
-      ];
-      if (f.formattedAddress != null) {
-        list.add(Padding(
-          padding: EdgeInsets.only(bottom: 2.0),
-          child: Text(
-            f.formattedAddress,
-          ),
-        ));
-      }
-
+      List<Widget> list = List<Widget>();
+      list.add(createRow(f.name, Icons.info_outline));
       if (f.vicinity != null) {
-        list.add(Padding(
-          padding: EdgeInsets.only(bottom: 2.0),
-          child: Text(
-            f.vicinity,
-          ),
-        ));
+        list.add(createRow(f.vicinity, Icons.place));
       }
-
       if (f.types?.first != null) {
-        list.add(
-          Padding(
-            padding: EdgeInsets.only(bottom: 2.0),
-            child: Text(
-              f.types.first,
-            ),
-          ),
-        );
+        list.add(createRow(f.types.first, Icons.account_balance));
       }
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             leading: InkWell(
+              onLongPress: () {
+
+                debugPrint("Long Pressed ${f.name}");
+              },
+              onTap: () {
+                var marker = controller.markers.firstWhere(
+                    (p) => p.options.position == getLatLngLocationOfPlace(f));
+                mapWidgetKey.currentState
+                    .setState(() => controller.onMarkerTapped.call(marker));
+
+                debugPrint("Tapped ${f.name}");
+              },
               highlightColor: Colors.lightBlueAccent,
               splashColor: Colors.lightBlue,
               child: Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(1.0),
                 child: Column(
                   children: list,
                 ),
@@ -84,8 +70,7 @@ class _PlacesListViewState extends State<PlacesListView> {
         itemCount: placesWidget.length,
         itemBuilder: (context, int index) {
           return Padding(
-            padding:
-                EdgeInsets.only(top: 4.0, bottom: 4.0, left: 8.0, right: 8.0),
+            padding: EdgeInsets.only(top: 4.0, bottom: 4.0, left: 8.0),
             child: Slidable(
               delegate: SlidableDrawerDelegate(),
               actionExtentRatio: 0.25,
@@ -124,10 +109,29 @@ class _PlacesListViewState extends State<PlacesListView> {
         });
   }
 
+  createRow(String text, IconData icon) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 4.0),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+          ),
+          Text(
+            text,
+            style: TextStyle(fontSize: 10.0),
+            textAlign: TextAlign.center,
+            softWrap: true,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+          ),
+        ],
+      ),
+    );
+  }
+
   void deleteItemFromList(List<PlacesSearchResult> places, int index) {
-    var latLng = LatLng(places.elementAt(index).geometry.location.lat,
-        places.elementAt(index).geometry.location.lng);
-    GoogleMapController controller = mapWidgetKey.currentState?.mapController;
+    var latLng = getLatLngLocationOfPlace(places.elementAt(index));
     debugPrint(controller.markers.length.toString());
     mapWidgetKey.currentState?.setState(() {
       Marker marker = controller.markers
