@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -53,7 +55,7 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
                   deleteMarkersFromMapView();
                   setState(() {
                     radius = newValue;
-                    });
+                  });
                 },
                 onChangeEnd: (value) {
                   getNearbyPlacesAndAppendMarkers(value);
@@ -71,43 +73,27 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
 
   void getNearbyPlacesAndAppendMarkers(double radius) async {
     this.placesList.clear();
+    var touristTypes = [
+      "museum",
+      "art_gallery",
+      "city_hall",
+      "park",
+      "casino",
+      "zoo",
+      "church"
+    ];
+    debugPrint(touristTypes.join(", "));
     final location = await getActualUserLocation();
-    final aquariums = await mapsPlaces.searchNearbyWithRadius(
-        Location(location.latitude, location.longitude), radius,
-        type: "aquarium");
-    final zoo = await mapsPlaces.searchNearbyWithRadius(
-        Location(location.latitude, location.longitude), radius,
-        type: "zoo");
-    final mosques = await mapsPlaces.searchNearbyWithRadius(
-        Location(location.latitude, location.longitude), radius,
-        type: "mosque");
-    final museums = await mapsPlaces.searchNearbyWithRadius(
-        Location(location.latitude, location.longitude), radius,
-        type: "museum");
-    final churches = await mapsPlaces.searchNearbyWithRadius(
-        Location(location.latitude, location.longitude), radius,
-        type: "church");
-    if (zoo.isOkay) {
-      this.placesList.addAll(zoo.results);
-    }
-    if (mosques.isOkay) {
-      this.placesList.addAll(mosques.results);
-    }
-    if (museums.isOkay) {
-      this.placesList.addAll(museums.results);
-    }
-    if (churches.isOkay) {
-      this.placesList.addAll(churches.results);
-    }
-    if (aquariums.isOkay) {
-      this.placesList.addAll(aquariums.results);
-    }
+    var places = findPlaces(location, touristTypes);
+    var pointsOfInterest = await places;
+    pointsOfInterest.shuffle(Random.secure());
+    placesList.addAll(pointsOfInterest);
     appendMarkersToMapView();
   }
 
   appendMarkersToMapView() {
     GoogleMapController controller = mapWidgetKey.currentState?.mapController;
-    debugPrint(placesList.length.toString());
+    debugPrint("Places found: ${placesList.length.toString()}");
     placesList.forEach((place) {
       final markerOptions = MarkerOptions(
           position: getLatLngLocationOfPlace(place),
@@ -119,5 +105,19 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
   void deleteMarkersFromMapView() {
     GoogleMapController controller = mapWidgetKey.currentState?.mapController;
     controller.clearMarkers();
+  }
+
+  Future<List<PlacesSearchResult>> findPlaces(
+      LatLng location, List<String> touristTypes) async {
+    var result = List<PlacesSearchResult>();
+    for (String type in touristTypes) {
+      var places = await mapsPlaces.searchNearbyWithRadius(
+          Location(location.latitude, location.longitude), radius,
+          type: type);
+      if (places.isOkay) {
+        result.addAll(places.results);
+      }
+    }
+    return result;
   }
 }

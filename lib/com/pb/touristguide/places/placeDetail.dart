@@ -81,13 +81,15 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
       );
     }
 
-    if (placeDetail.types?.first != null) {
+    if (placeDetail.types.isNotEmpty) {
+      String typesText='';
+      placeDetail.types.forEach((type)=>typesText+=type);
       list.add(
         Padding(
             padding:
                 EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 0.0),
             child: Text(
-              placeDetail.types.first.toUpperCase(),
+              placeDetail.types[0].toUpperCase()+', '+placeDetail.types[1].toUpperCase()+', '+placeDetail.types[2].toUpperCase(),
               style: Theme.of(context).textTheme.caption,
             )),
       );

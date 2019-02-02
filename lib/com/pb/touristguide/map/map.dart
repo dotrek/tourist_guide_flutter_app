@@ -12,6 +12,8 @@ class MapWidget extends StatefulWidget {
 class MapWidgetState extends State<MapWidget> {
   GoogleMapController mapController;
 
+  CameraPosition _mapCameraPosition = CameraPosition(target: LatLng(0.0, 0.0));
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -20,13 +22,12 @@ class MapWidgetState extends State<MapWidget> {
         child: Container(
           child: GoogleMap(
             onMapCreated: _onMapCreated,
-            options: GoogleMapOptions(
-              minMaxZoomPreference: MinMaxZoomPreference(5, 14),
-              myLocationEnabled: true,
-              compassEnabled: true,
-              scrollGesturesEnabled: false,
-              rotateGesturesEnabled: false,
-            ),
+            minMaxZoomPreference: MinMaxZoomPreference(5, 14),
+            myLocationEnabled: true,
+            compassEnabled: true,
+            scrollGesturesEnabled: false,
+            rotateGesturesEnabled: false,
+            initialCameraPosition: _mapCameraPosition,
           ),
         ),
       ),

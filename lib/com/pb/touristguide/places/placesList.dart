@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -39,21 +38,21 @@ class _PlacesListViewState extends State<PlacesListView> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
+            selected: selectedPlaces.contains(f),
             leading: InkWell(
               onLongPress: () {
-
                 debugPrint("Long Pressed ${f.name}");
+                // ignore: unnecessary_statements
+                setState(() => _handleLongPress(f));
               },
               onTap: () {
                 var marker = controller.markers.firstWhere(
                     (p) => p.options.position == getLatLngLocationOfPlace(f));
                 mapWidgetKey.currentState
                     .setState(() => controller.onMarkerTapped.call(marker));
-
                 debugPrint("Tapped ${f.name}");
               },
-              highlightColor: Colors.lightBlueAccent,
-              splashColor: Colors.lightBlue,
+              highlightColor: Theme.of(context).primaryColor,
               child: Padding(
                 padding: EdgeInsets.all(1.0),
                 child: Column(
@@ -90,23 +89,29 @@ class _PlacesListViewState extends State<PlacesListView> {
                 )
               ],
               secondaryActions: <Widget>[
-                Card(
-                  child: IconSlideAction(
-                    caption: "Remove",
-                    color: Colors.red,
-                    icon: Icons.delete,
-                    onTap: () {
-                      setState(() {
-                        showDeleteDialog(places, index);
-                      });
-                    },
-                  ),
+                  Card(
+                    child: IconSlideAction(
+                      caption: "Remove",
+                      color: Colors.red,
+                      icon: Icons.delete,
+                      onTap: () {
+                        setState(() {
+                          showDeleteDialog(places, index);
+                        });
+                      },
+                    ),
                 )
               ],
               child: placesWidget.elementAt(index),
             ),
           );
         });
+  }
+
+  _handleLongPress(PlacesSearchResult psr) {
+    selectedPlaces.contains(psr)
+        ? selectedPlaces.remove(psr)
+        : selectedPlaces.add(psr);
   }
 
   createRow(String text, IconData icon) {
@@ -117,13 +122,15 @@ class _PlacesListViewState extends State<PlacesListView> {
           Icon(
             icon,
           ),
-          Text(
-            text,
-            style: TextStyle(fontSize: 10.0),
-            textAlign: TextAlign.center,
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.caption,
+              textAlign: TextAlign.center,
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
           ),
         ],
       ),
