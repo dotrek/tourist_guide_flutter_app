@@ -25,7 +25,7 @@ String userLocationTitle = "Find places nearby";
 void main() {
   runApp(MaterialApp(
     theme: customTheme,
-    home: LogInWidgetContainer(),
+    home: MainAppWidget(actualWidget: MapsWithPlacesWidget(),),
   ));
 }
 

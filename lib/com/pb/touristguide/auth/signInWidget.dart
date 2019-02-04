@@ -68,19 +68,19 @@ class SignInWidgetState extends State<SignInWidget> {
   Widget _showBody() {
     return new Container(
       padding: EdgeInsets.all(16.0),
-      child:  new Form(
-          key: _formKey,
-          child: new ListView(
-            shrinkWrap: true,
-            children: <Widget>[
-              _showLogo(),
-              _showEmailInput(),
-              _showPasswordInput(),
-              _showPrimaryButton(),
-              _showSecondaryButton(),
-              _showErrorMessage(),
-            ],
-          ),
+      child: new Form(
+        key: _formKey,
+        child: new ListView(
+          shrinkWrap: true,
+          children: <Widget>[
+            _showLogo(),
+            _showEmailInput(),
+            _showPasswordInput(),
+            _showPrimaryButton(),
+            _showSecondaryButton(),
+            _showErrorMessage(),
+          ],
+        ),
       ),
     );
   }
@@ -155,9 +155,9 @@ class SignInWidgetState extends State<SignInWidget> {
       _errorMessage = "";
       _isLoading = true;
     });
-    if (_validateAndSave()) {
-      String userId = "";
-      try {
+    try {
+      if (_validateAndSave()) {
+        String userId = "";
         if (_formMode == FormMode.LOGIN) {
           userId = await widget.auth.signIn(_email, _password);
           print('Signed in: $userId');
@@ -168,17 +168,17 @@ class SignInWidgetState extends State<SignInWidget> {
         if (userId.length > 0 && userId != null) {
           widget.onSignedIn();
         }
-      } catch (e) {
-        print('Error: $e');
-        setState(() {
-          if (Theme.of(context).platform == TargetPlatform.iOS) {
-            _errorMessage = e.details;
-          } else
-            _errorMessage = e.message;
-        });
-      } finally {
-        _isLoading = false;
       }
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        if (Theme.of(context).platform == TargetPlatform.iOS) {
+          _errorMessage = e.details;
+        } else
+          _errorMessage = e.message;
+      });
+    } finally {
+      _isLoading = false;
     }
   }
 

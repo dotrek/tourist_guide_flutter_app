@@ -14,13 +14,13 @@ class MapsWithPlacesWidget extends StatefulWidget {
 }
 
 class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
-  GoogleMapController controller = mapWidgetKey.currentState?.mapController;
-  var listViewVisibility = false;
+  GoogleMapController controller;
   List<PlacesSearchResult> placesList = List();
   double radius = 1000;
 
   @override
   void initState() {
+    controller= mapWidgetKey.currentState?.mapController;
     getNearbyPlacesAndAppendMarkers(radius);
     super.initState();
   }
@@ -92,18 +92,19 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
   }
 
   appendMarkersToMapView() {
-    GoogleMapController controller = mapWidgetKey.currentState?.mapController;
+    controller= mapWidgetKey.currentState?.mapController;
     debugPrint("Places found: ${placesList.length.toString()}");
     placesList.forEach((place) {
       final markerOptions = MarkerOptions(
           position: getLatLngLocationOfPlace(place),
           infoWindowText: InfoWindowText(place.name, place.types?.first));
+      debugPrint(markerOptions.infoWindowText.title);
       controller.addMarker(markerOptions);
     });
   }
 
   void deleteMarkersFromMapView() {
-    GoogleMapController controller = mapWidgetKey.currentState?.mapController;
+    controller= mapWidgetKey.currentState?.mapController;
     controller.clearMarkers();
   }
 
