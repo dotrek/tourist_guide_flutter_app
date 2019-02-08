@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/main.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
+import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placesList.dart';
 
 class MapsWithPlacesWidget extends StatefulWidget {
@@ -83,7 +84,7 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
       "church"
     ];
     debugPrint(touristTypes.join(", "));
-    final location = await getActualUserLocation();
+    final location = await MapUtil.getActualUserLocation();
     var places = findPlaces(location, touristTypes);
     var pointsOfInterest = await places;
     pointsOfInterest.shuffle(Random.secure());

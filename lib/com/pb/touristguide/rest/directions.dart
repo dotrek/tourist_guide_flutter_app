@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart' as http;
 import 'package:tourist_guide/com/pb/touristguide/main.dart';
@@ -9,7 +10,7 @@ class DirectionsRequest {
   static String _defaultUrl =
       "https://maps.googleapis.com/maps/api/directions/json?";
 
-  static void getRoute(List<PlacesSearchResult> pointsList) async {
+  static Future<http.Response> getRoute(List<LatLng> pointsList) async {
     String origin = _getLatLngString(pointsList.first);
     String destination = _getLatLngString(pointsList.last);
     String restOfWaypoints = "";
@@ -29,21 +30,22 @@ class DirectionsRequest {
       response =
       await _fetchPostWithWaypoints(origin, destination, restOfWaypoints);
     }
+    return response;
   }
 
   static Future<http.Response> _fetchPostWithWaypoints(
       String origin, String destination, String restOfWaypoints) async {
     return http.get(_defaultUrl +
-        "origin=$origin&destination=$destination&waypoints=$restOfWaypoints&key=$API_KEY");
+        "origin=$origin&destination=$destination&waypoints=optimize:true|$restOfWaypoints&mode=walking&key=$API_KEY");
   }
 
   static Future<http.Response> _fetchPost(
       String origin, String destination) async {
     return http.get(
-        _defaultUrl + "origin=$origin&destination=$destination&key=$API_KEY");
+        _defaultUrl + "origin=$origin&destination=$destination&mode=walking&key=$API_KEY");
   }
 
-  static String _getLatLngString(PlacesSearchResult place) {
-    return "${place.geometry.location.lat},${place.geometry.location.lng}";
+  static String _getLatLngString(LatLng place) {
+    return "${place.latitude},${place.longitude}";
   }
 }

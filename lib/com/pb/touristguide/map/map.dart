@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:tourist_guide/com/pb/touristguide/main.dart';
+import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 
 class MapWidget extends StatefulWidget {
   @override
@@ -42,7 +43,7 @@ class MapWidgetState extends State<MapWidget> {
   }
 
   void _animateToUserLocation() async {
-    final location = await getActualUserLocation();
+    final location = await MapUtil.getActualUserLocation();
     if (location != null) {
       mapController.animateCamera(
         CameraUpdate.newCameraPosition(

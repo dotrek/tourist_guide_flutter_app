@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/main.dart';
+import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/mapWithPlaces.dart';
 
 class MainAppWidget extends StatefulWidget {
@@ -19,6 +19,7 @@ class MainAppWidget extends StatefulWidget {
 class _MainAppWidgetState extends State<MainAppWidget> {
   @override
   Widget build(BuildContext context) {
+    GoogleMapController controller = mapWidgetKey.currentState.mapController;
     return Scaffold(
         key: mainKey,
         appBar: AppBar(
@@ -81,7 +82,7 @@ class _MainAppWidgetState extends State<MainAppWidget> {
                       ),
                     );
                   })
-              : createRoute(),
+              : MapUtil.createRoute(controller, selectedPlaces),
           child: Column(
             children: [
               Center(child: Icon(Icons.call_missed_outgoing)),
@@ -96,18 +97,5 @@ class _MainAppWidgetState extends State<MainAppWidget> {
           ),
         ),
         body: widget.actualWidget);
-  }
-
-  Future createRoute() async {
-    GoogleMapController controller = mapWidgetKey.currentState?.mapController;
-    controller.clearMarkers();
-    var pointsList = selectedPlaces
-        .map((PlacesSearchResult psr) =>
-            LatLng(psr.geometry.location.lat, psr.geometry.location.lng))
-        .toList();
-    pointsList.forEach((p) => controller.addMarker(MarkerOptions(position: p)));
-    Polyline polyline= await controller.addPolyline(PolylineOptions(points: pointsList));
-    controller.animateCamera(CameraUpdate.newLatLng(polyline.options.points.elementAt(1)));
-    
   }
 }
