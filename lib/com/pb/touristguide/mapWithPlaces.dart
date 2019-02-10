@@ -64,7 +64,7 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
                 min: 100,
                 max: 5000,
               ),
-              MapWidget(key: mapWidgetKey),
+              Expanded(child: MapWidget(key: mapWidgetKey)),
             ],
           ),
         ),

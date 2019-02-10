@@ -1,25 +1,15 @@
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
 import 'package:location/location.dart' as LocationManager;
 import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/directions.dart';
 
 class MapUtil {
-
-  static Future createRoute(GoogleMapController controller,
-      List<PlacesSearchResult> placesList) async {
-    controller.clearMarkers();
-    var pointsList = placesList
-        .map((PlacesSearchResult psr) =>
-            LatLng(psr.geometry.location.lat, psr.geometry.location.lng))
-        .toList();
-    pointsList
-        .forEach((pos) => controller.addMarker(MarkerOptions(position: pos)));
-    var userLocation = await getActualUserLocation();
-    pointsList.insert(0, userLocation);
-    var routes = await DirectionsRequest.getRoute(pointsList);
+  static Future<List<RouteStep>> getRoute(List<LatLng> placesList) async {
+    var routes = await DirectionsRequest.getRoute(placesList);
     Map<String, dynamic> routeJson = jsonDecode(routes.body);
     List responseRoutesList = routeJson['routes'][0]['legs'];
     List responseSteps = responseRoutesList.map((res) => res['steps']).toList();
@@ -27,10 +17,7 @@ class MapUtil {
     var routesList = responseStepsExpanded
         .map((stepsTile) => RouteStep.fromJson(stepsTile))
         .toList();
-    var polylinePoints =
-        routesList.map((routeStep) => routeStep.endLoc).toList();
-    polylinePoints.insert(0, routesList[0].startLoc);
-    controller.addPolyline(PolylineOptions(points: polylinePoints));
+    return routesList;
   }
 
   static Future<LatLng> getActualUserLocation() async {
@@ -43,5 +30,53 @@ class MapUtil {
     } on Exception {
       return null;
     }
+  }
+
+  static double getAverageLatitude(List<LatLng> pointsList) {
+    double maxLat = double.negativeInfinity, minLat = double.maxFinite;
+    pointsList.forEach((point) {
+      debugPrint("Latitude: ${point.latitude}");
+      maxLat = max(maxLat, point.latitude);
+      minLat = min(minLat, point.latitude);
+    });
+    debugPrint("Max latitude: $maxLat");
+    debugPrint("Min latitude: $minLat");
+    var average = (maxLat + minLat) / 2;
+    debugPrint("Average: $average");
+    return average;
+  }
+
+  static double getAverageLongitude(List<LatLng> pointsList) {
+    double maxLon = double.negativeInfinity, minLon = double.maxFinite;
+    pointsList.forEach((point) {
+      debugPrint("Longitude: ${point.longitude}");
+      maxLon = max(maxLon, point.longitude);
+      minLon = min(minLon, point.longitude);
+    });
+    debugPrint("Max longitude: $maxLon");
+    debugPrint("Min longitude: $minLon");
+    var average = (maxLon + minLon) / 2;
+    debugPrint("Delta: $average");
+    return average;
+  }
+
+  static LatLng getSouthwestPoint(List<LatLng> pointsList) {
+    double minLat = double.maxFinite;
+    double minLon = double.maxFinite;
+    pointsList.forEach((point) {
+      minLat = min(minLat, point.latitude);
+      minLon = min(minLon, point.longitude);
+    });
+    return LatLng(minLat, minLon);
+  }
+
+  static LatLng getNorthEastPoint(List<LatLng> pointsList) {
+    double maxLat = double.negativeInfinity;
+    double maxLon = double.negativeInfinity;
+    pointsList.forEach((point) {
+      maxLat = max(maxLat, point.latitude);
+      maxLon = max(maxLon, point.longitude);
+    });
+    return LatLng(maxLat, maxLon);
   }
 }

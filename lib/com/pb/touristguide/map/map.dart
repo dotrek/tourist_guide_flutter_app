@@ -4,10 +4,12 @@ import 'package:tourist_guide/com/pb/touristguide/main.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 
 class MapWidget extends StatefulWidget {
+  final Function onMapCreated;
+
   @override
   State createState() => MapWidgetState();
 
-  MapWidget({Key key}) : super(key: key);
+  MapWidget({Key key, this.onMapCreated}) : super(key: key);
 }
 
 class MapWidgetState extends State<MapWidget> {
@@ -17,25 +19,25 @@ class MapWidgetState extends State<MapWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: EdgeInsets.all(15.0),
-        child: Container(
-          child: GoogleMap(
-            onMapCreated: _onMapCreated,
-            minMaxZoomPreference: MinMaxZoomPreference(5, 14),
-            myLocationEnabled: true,
-            compassEnabled: true,
-            scrollGesturesEnabled: false,
-            rotateGesturesEnabled: false,
-            initialCameraPosition: _mapCameraPosition,
-          ),
+    return Padding(
+      padding: EdgeInsets.all(15.0),
+      child: Container(
+        child: GoogleMap(
+          onMapCreated: widget.onMapCreated == null
+              ? _defaultOnMapCreated
+              : widget.onMapCreated,
+          minMaxZoomPreference: MinMaxZoomPreference(9, 13),
+          myLocationEnabled: true,
+          compassEnabled: true,
+          scrollGesturesEnabled: false,
+          rotateGesturesEnabled: false,
+          initialCameraPosition: _mapCameraPosition,
         ),
       ),
     );
   }
 
-  void _onMapCreated(GoogleMapController controller) {
+  void _defaultOnMapCreated(GoogleMapController controller) {
     setState(() {
       mapController = controller;
       _animateToUserLocation();

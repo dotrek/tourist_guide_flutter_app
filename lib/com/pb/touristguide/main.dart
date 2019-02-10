@@ -47,6 +47,10 @@ final customTheme = ThemeData(
   brightness: Brightness.dark,
   accentColor: Colors.green.shade900,
   primaryColor: Colors.green,
+  dialogTheme: DialogTheme(
+    backgroundColor: Colors.green.shade800,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(45.0)),
+  ),
   inputDecorationTheme: InputDecorationTheme(
     border: OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(4.0)),
