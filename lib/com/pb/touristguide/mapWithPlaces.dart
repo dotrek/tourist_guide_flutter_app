@@ -21,7 +21,7 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
 
   @override
   void initState() {
-    controller= mapWidgetKey.currentState?.mapController;
+    controller = mapWidgetKey.currentState?.mapController;
     getNearbyPlacesAndAppendMarkers(radius);
     super.initState();
   }
@@ -89,23 +89,13 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
     var pointsOfInterest = await places;
     pointsOfInterest.shuffle(Random.secure());
     placesList.addAll(pointsOfInterest);
-    appendMarkersToMapView();
+    MapUtil.appendMarkersToMapView(controller, placesList);
   }
 
-  appendMarkersToMapView() {
-    controller= mapWidgetKey.currentState?.mapController;
-    debugPrint("Places found: ${placesList.length.toString()}");
-    placesList.forEach((place) {
-      final markerOptions = MarkerOptions(
-          position: getLatLngLocationOfPlace(place),
-          infoWindowText: InfoWindowText(place.name, place.types?.first));
-      debugPrint(markerOptions.infoWindowText.title);
-      controller.addMarker(markerOptions);
-    });
-  }
+
 
   void deleteMarkersFromMapView() {
-    controller= mapWidgetKey.currentState?.mapController;
+    controller = mapWidgetKey.currentState?.mapController;
     controller.clearMarkers();
   }
 

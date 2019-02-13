@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:location/location.dart' as LocationManager;
 import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/directions.dart';
@@ -30,6 +31,10 @@ class MapUtil {
     } on Exception {
       return null;
     }
+  }
+
+  static LatLng getLatLngLocationOfPlace(PlacesSearchResult place) {
+    return LatLng(place.geometry.location.lat, place.geometry.location.lng);
   }
 
   static double getAverageLatitude(List<LatLng> pointsList) {
@@ -78,5 +83,16 @@ class MapUtil {
       maxLon = max(maxLon, point.longitude);
     });
     return LatLng(maxLat, maxLon);
+  }
+
+  static void appendMarkersToMapView(
+      GoogleMapController controller, List<PlacesSearchResult> placesList) {
+    placesList.forEach((place) {
+      final markerOptions = MarkerOptions(
+          position: getLatLngLocationOfPlace(place),
+          infoWindowText: InfoWindowText(place.name, place.types?.first));
+      debugPrint(markerOptions.infoWindowText.title);
+      controller.addMarker(markerOptions);
+    });
   }
 }

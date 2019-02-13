@@ -63,7 +63,3 @@ final customTheme = ThemeData(
 );
 
 
-
-getLatLngLocationOfPlace(PlacesSearchResult place) {
-  return LatLng(place.geometry.location.lat, place.geometry.location.lng);
-}

@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/main.dart';
+import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
 
 class PlacesListView extends StatefulWidget {
@@ -46,8 +47,8 @@ class _PlacesListViewState extends State<PlacesListView> {
                 setState(() => _handleLongPress(f));
               },
               onTap: () {
-                var marker = controller.markers.firstWhere(
-                    (p) => p.options.position == getLatLngLocationOfPlace(f));
+                var marker = controller.markers.firstWhere((p) =>
+                    p.options.position == MapUtil.getLatLngLocationOfPlace(f));
                 mapWidgetKey.currentState
                     .setState(() => controller.onMarkerTapped.call(marker));
                 debugPrint("Tapped ${f.name}");
@@ -89,17 +90,17 @@ class _PlacesListViewState extends State<PlacesListView> {
                 )
               ],
               secondaryActions: <Widget>[
-                  Card(
-                    child: IconSlideAction(
-                      caption: "Remove",
-                      color: Colors.red,
-                      icon: Icons.delete,
-                      onTap: () {
-                        setState(() {
-                          showDeleteDialog(places, index);
-                        });
-                      },
-                    ),
+                Card(
+                  child: IconSlideAction(
+                    caption: "Remove",
+                    color: Colors.red,
+                    icon: Icons.delete,
+                    onTap: () {
+                      setState(() {
+                        showDeleteDialog(places, index);
+                      });
+                    },
+                  ),
                 )
               ],
               child: placesWidget.elementAt(index),
@@ -138,7 +139,7 @@ class _PlacesListViewState extends State<PlacesListView> {
   }
 
   void deleteItemFromList(List<PlacesSearchResult> places, int index) {
-    var latLng = getLatLngLocationOfPlace(places.elementAt(index));
+    var latLng = MapUtil.getLatLngLocationOfPlace(places.elementAt(index));
     debugPrint(controller.markers.length.toString());
     mapWidgetKey.currentState?.setState(() {
       Marker marker = controller.markers
