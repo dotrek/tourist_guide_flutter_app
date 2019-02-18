@@ -5,7 +5,10 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/main.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
+import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
+import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
+import 'package:tourist_guide/com/pb/touristguide/rest/firebaseData.dart';
 
 class TripDialog extends StatelessWidget {
   List<RouteStep> _routeSteps;
@@ -66,11 +69,6 @@ class TripDialog extends StatelessWidget {
                         itemCount: selectedPlaces.length,
                         itemBuilder: (context, index) {
                           var place = selectedPlaces[index];
-                          var placeLatLng = LatLng(place.geometry.location.lat,
-                              place.geometry.location.lng);
-//                          var indexForView = _routeSteps.indexOf(
-//                              _routeSteps.firstWhere(
-//                                  (step) => step.endLoc == placeLatLng));
                           return RouteSpotInfo(
                             place: place,
                             index: index,
@@ -79,7 +77,7 @@ class TripDialog extends StatelessWidget {
                       ),
                     ),
                     DialogButtons(
-                      onCreate: () => debugPrint("Created"),
+                      routeSteps: _routeSteps,
                     )
                   ],
                 );
@@ -87,11 +85,19 @@ class TripDialog extends StatelessWidget {
                 return Container(
                   width: 200,
                   height: 200,
-                  child: SizedBox.fromSize(
-                    size: Size(100, 100),
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.lightBlue),
-                      strokeWidth: 10.0,
+                  child: Center(
+                    child: Stack(
+                      children: <Widget>[
+                        Container(
+                          width: 100,
+                          height: 100,
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation(Colors.lightBlue),
+                            strokeWidth: 10.0,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -125,7 +131,7 @@ class TripDialog extends StatelessWidget {
         LatLngBounds(
             southwest: MapUtil.getSouthwestPoint(placesLatLngList),
             northeast: MapUtil.getNorthEastPoint(placesLatLngList)),
-        0.0));
+        20.0));
   }
 }
 
@@ -141,16 +147,19 @@ class RouteSpotInfo extends StatelessWidget {
       color: Colors.green.shade500,
       child: ListTile(
         leading: Text("${index + 1}"),
-        trailing: Text(place.name),
+        trailing: Text(
+          place.name,
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
 }
 
 class DialogButtons extends StatelessWidget {
-  final VoidCallback onCreate;
+  final List<RouteStep> routeSteps;
 
-  const DialogButtons({Key key, this.onCreate}) : super(key: key);
+  const DialogButtons({Key key, this.routeSteps}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +168,23 @@ class DialogButtons extends StatelessWidget {
       children: <Widget>[
         Expanded(
           child: InkWell(
-            onTap: () => onCreate,
+            onTap: () {
+              debugPrint('onCreate tapped');
+              Database.push(Trip(
+                      routeSteps,
+                      selectedPlaces
+                          .map((p) => PlaceInfo(
+                              p.geometry,
+                              p.name,
+                              p.placeId,
+                              p.rating,
+                              p.types,
+                              p.vicinity,
+                              p.formattedAddress))
+                          .toList())
+                  .toJson());
+              Navigator.of(context).pop();
+            },
             child: Container(
                 padding: EdgeInsets.only(top: 20, bottom: 20),
                 decoration: BoxDecoration(

@@ -16,6 +16,7 @@ dependencies:
   duration: ^2.0.4
   http:
   firebase_auth:
+  firebase_database:
   optional:
   google_maps_flutter:
     git:
@@ -26,6 +27,8 @@ dependencies:
   swipedetector:
   flutter_slidable:
   location:
+  json_annotation:
+  flutter_staggered_grid_view:
   flutter:
     sdk: flutter
 

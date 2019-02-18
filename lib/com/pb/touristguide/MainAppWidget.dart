@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:tourist_guide/com/pb/touristguide/main.dart';
 import 'package:tourist_guide/com/pb/touristguide/mapWithPlaces.dart';
-import 'package:tourist_guide/com/pb/touristguide/tripDialog.dart';
+import 'package:tourist_guide/com/pb/touristguide/trip/tripDialog.dart';
+import 'package:tourist_guide/com/pb/touristguide/trip/userTrips.dart';
 
 class MainAppWidget extends StatefulWidget {
   Widget actualWidget;
@@ -60,6 +61,16 @@ class _MainAppWidgetState extends State<MainAppWidget> {
                 },
                 title: Text("Other places"),
                 leading: Icon(Icons.priority_high),
+              ),
+              ListTile(
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    widget.actualWidget = UserTrips();
+                  });
+                },
+                title: Text("My trips"),
+                leading: Icon(Icons.favorite),
               ),
             ],
           ),

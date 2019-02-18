@@ -21,9 +21,8 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
 
   @override
   void initState() {
-    controller = mapWidgetKey.currentState?.mapController;
-    getNearbyPlacesAndAppendMarkers(radius);
     super.initState();
+    selectedPlaces.clear();
   }
 
   @override
@@ -53,6 +52,7 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
                 activeColor: Colors.lightBlue,
                 value: radius,
                 onChanged: (newValue) {
+                  selectedPlaces.clear();
                   deleteMarkersFromMapView();
                   setState(() {
                     radius = newValue;
@@ -64,7 +64,10 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
                 min: 100,
                 max: 5000,
               ),
-              Expanded(child: MapWidget(key: mapWidgetKey)),
+              Expanded(
+                  child: MapWidget(
+                key: mapWidgetKey,
+              )),
             ],
           ),
         ),
@@ -76,7 +79,6 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
     this.placesList.clear();
     var touristTypes = [
       "museum",
-      "art_gallery",
       "city_hall",
       "park",
       "casino",
@@ -91,8 +93,6 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
     placesList.addAll(pointsOfInterest);
     MapUtil.appendMarkersToMapView(controller, placesList);
   }
-
-
 
   void deleteMarkersFromMapView() {
     controller = mapWidgetKey.currentState?.mapController;
