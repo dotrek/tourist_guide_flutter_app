@@ -14,7 +14,6 @@ class PlacesListView extends StatefulWidget {
 }
 
 class _PlacesListViewState extends State<PlacesListView> {
-//  GoogleMapController controller = mapWidgetKey.currentState?.mapController;
 
   @override
   Widget build(BuildContext context) {
@@ -34,29 +33,18 @@ class _PlacesListViewState extends State<PlacesListView> {
         list.add(createRow(f.types.first, Icons.account_balance));
       }
       return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListTile(
-            selected: selectedPlaces.contains(f),
-            leading: InkWell(
-              onLongPress: () {
-                debugPrint("Long Pressed ${f.name}");
-                // ignore: unnecessary_statements
-                setState(() => _handleLongPress(f));
-              },
-              onTap: () {
-//                var marker = controller.markers.firstWhere((p) =>
-//                    p.options.position == MapUtil.getLatLngLocationOfPlace(f));
-//                mapWidgetKey.currentState
-//                    .setState(() => controller.onMarkerTapped.call(marker));
-//                debugPrint("Tapped ${f.name}");
-              },
-              highlightColor: Theme.of(context).primaryColor,
-              child: Padding(
-                padding: EdgeInsets.all(1.0),
-                child: Column(
-                  children: list,
-                ),
+        child: ListTile(
+          selected: selectedPlaces.contains(f),
+          leading: InkWell(
+            onLongPress: () {
+              debugPrint("Long Pressed ${f.name}");
+              setState(() => _handleLongPress(f));
+            },
+            highlightColor: Theme.of(context).primaryColor,
+            child: Padding(
+              padding: EdgeInsets.all(1.0),
+              child: Column(
+                children: list,
               ),
             ),
           ),
@@ -136,24 +124,15 @@ class _PlacesListViewState extends State<PlacesListView> {
     );
   }
 
-//  void deleteItemFromList(List<PlacesSearchResult> places, int index) {
-//    var latLng = MapUtil.getLatLngLocationOfPlace(places.elementAt(index));
-//    debugPrint(controller.markers.length.toString());
-//    mapWidgetKey.currentState?.setState(() {
-//      Marker marker = controller.markers
-//          .firstWhere((Marker marker) => marker.options.position == latLng);
-//      debugPrint("Marker do delete: $marker");
-//      controller.removeMarker(marker);
-//      debugPrint("markers on map: ${controller.markers.length}");
-//    });
-//    setState(() {
-//      places.removeAt(index);
-//    });
-//    Scaffold.of(context).showSnackBar(SnackBar(
-//      content: Text("Removed"),
-//      duration: Duration(seconds: 1),
-//    ));
-//  }
+  void deleteItemFromList(List<PlacesSearchResult> places, int index) {
+    setState(() {
+      places.removeAt(index);
+    });
+    Scaffold.of(context).showSnackBar(SnackBar(
+      content: Text("Removed"),
+      duration: Duration(seconds: 1),
+    ));
+  }
 
   showDeleteDialog(List<PlacesSearchResult> places, int index) {
     return showDialog<bool>(

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 
 class MapWidget extends StatefulWidget {
@@ -50,9 +51,25 @@ class MapWidgetState extends State<MapWidget> {
     }
   }
 
-  void addMarker(String id, LatLng latLng) async {
+  void animateToLocation(LatLng southwest, LatLng northeast) async {
+    final GoogleMapController controller = await _mapController.future;
+    controller.animateCamera(CameraUpdate.newLatLngBounds(
+        LatLngBounds(southwest: southwest, northeast: northeast), 10.0));
+  }
+
+  void addMarker(PlacesSearchResult psr) {
     setState(() {
-      widget.markers.add(Marker(markerId: MarkerId(id), position: latLng));
+      widget.markers.add(Marker(
+        markerId: MarkerId(psr.id),
+        infoWindow: InfoWindow(title: psr.name),
+        position: LatLng(psr.geometry.location.lat, psr.geometry.location.lng),
+      ));
+    });
+  }
+
+  void clearMarkers() {
+    setState(() {
+      widget.markers.clear();
     });
   }
 }
