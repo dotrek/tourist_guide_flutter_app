@@ -54,7 +54,7 @@ class MapWidgetState extends State<MapWidget> {
   void animateToLocation(LatLng southwest, LatLng northeast) async {
     final GoogleMapController controller = await _mapController.future;
     controller.animateCamera(CameraUpdate.newLatLngBounds(
-        LatLngBounds(southwest: southwest, northeast: northeast), 10.0));
+        LatLngBounds(southwest: southwest, northeast: northeast), 32.0));
   }
 
   void addMarker(PlacesSearchResult psr) {

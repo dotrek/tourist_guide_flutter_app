@@ -17,37 +17,32 @@ class _PlacesListViewState extends State<PlacesListView> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: buildPlacesList(widget.places),
+    return Scaffold(
+      body: Container(
+        child: buildPlacesList(widget.places),
+      ),
     );
   }
 
   ListView buildPlacesList(List<PlacesSearchResult> places) {
     final placesWidget = places.map((f) {
-      List<Widget> list = List<Widget>();
-      list.add(createRow(f.name, Icons.info_outline));
-      if (f.vicinity != null) {
-        list.add(createRow(f.vicinity, Icons.place));
-      }
-      if (f.types?.first != null) {
-        list.add(createRow(f.types.first, Icons.account_balance));
-      }
       return Card(
-        child: ListTile(
-          selected: selectedPlaces.contains(f),
-          leading: InkWell(
-            onLongPress: () {
-              debugPrint("Long Pressed ${f.name}");
-              setState(() => _handleLongPress(f));
-            },
-            highlightColor: Theme.of(context).primaryColor,
-            child: Padding(
-              padding: EdgeInsets.all(1.0),
-              child: Column(
-                children: list,
-              ),
+        child: InkWell(
+          onLongPress: () {
+            debugPrint("Long Pressed ${f.name}");
+            setState(() => _handleLongPress(f));
+          },
+          highlightColor: Theme.of(context).primaryColor,
+          child: ListTile(
+            contentPadding: EdgeInsets.only(left: 4.0, right: 4.0),
+            selected: selectedPlaces.contains(f),
+            title:Text(f.name),
+            subtitle: Text(f.types.first),
+            trailing: Text(
+              f.vicinity,
+              style: Theme.of(context).textTheme.caption,
             ),
-          ),
+            ),
         ),
       );
     }).toList();
@@ -55,42 +50,39 @@ class _PlacesListViewState extends State<PlacesListView> {
     return ListView.builder(
         itemCount: placesWidget.length,
         itemBuilder: (context, int index) {
-          return Padding(
-            padding: EdgeInsets.only(top: 4.0, bottom: 4.0, left: 8.0),
-            child: Slidable(
-              delegate: SlidableDrawerDelegate(),
-              actionExtentRatio: 0.25,
-              actions: <Widget>[
-                Card(
-                  child: IconSlideAction(
-                    caption: "Details",
-                    color: Colors.lightGreen,
-                    icon: Icons.details,
-                    onTap: () {
-                      setState(() {
-                        var elementAt = places.elementAt(index);
-                        showDetailPlace(elementAt.placeId);
-                      });
-                    },
-                  ),
-                )
-              ],
-              secondaryActions: <Widget>[
-                Card(
-                  child: IconSlideAction(
-                    caption: "Remove",
-                    color: Colors.red,
-                    icon: Icons.delete,
-                    onTap: () {
-                      setState(() {
-                        showDeleteDialog(places, index);
-                      });
-                    },
-                  ),
-                )
-              ],
-              child: placesWidget.elementAt(index),
-            ),
+          return Slidable(
+            delegate: SlidableDrawerDelegate(),
+            actionExtentRatio: 0.25,
+            actions: <Widget>[
+              Card(
+                child: IconSlideAction(
+                  caption: "Details",
+                  color: Colors.lightGreen,
+                  icon: Icons.details,
+                  onTap: () {
+                    setState(() {
+                      var elementAt = places.elementAt(index);
+                      showDetailPlace(elementAt.placeId);
+                    });
+                  },
+                ),
+              )
+            ],
+            secondaryActions: <Widget>[
+              Card(
+                child: IconSlideAction(
+                  caption: "Remove",
+                  color: Colors.red,
+                  icon: Icons.delete,
+                  onTap: () {
+                    setState(() {
+                      showDeleteDialog(places, index);
+                    });
+                  },
+                ),
+              )
+            ],
+            child: placesWidget.elementAt(index),
           );
         });
   }
@@ -102,25 +94,16 @@ class _PlacesListViewState extends State<PlacesListView> {
   }
 
   createRow(String text, IconData icon) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 4.0),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-          ),
-          Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.caption,
-              textAlign: TextAlign.center,
-              softWrap: true,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
-            ),
-          ),
-        ],
-      ),
+    return Row(
+      children: [
+        Icon(
+          icon,
+        ),
+        Text(
+          text,
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 
