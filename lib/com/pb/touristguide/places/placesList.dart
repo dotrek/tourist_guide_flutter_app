@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:tourist_guide/com/pb/touristguide/main.dart';
-import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
+import 'package:tourist_guide/main.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
 
 class PlacesListView extends StatefulWidget {
@@ -16,7 +14,7 @@ class PlacesListView extends StatefulWidget {
 }
 
 class _PlacesListViewState extends State<PlacesListView> {
-  GoogleMapController controller = mapWidgetKey.currentState?.mapController;
+//  GoogleMapController controller = mapWidgetKey.currentState?.mapController;
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +45,11 @@ class _PlacesListViewState extends State<PlacesListView> {
                 setState(() => _handleLongPress(f));
               },
               onTap: () {
-                var marker = controller.markers.firstWhere((p) =>
-                    p.options.position == MapUtil.getLatLngLocationOfPlace(f));
-                mapWidgetKey.currentState
-                    .setState(() => controller.onMarkerTapped.call(marker));
-                debugPrint("Tapped ${f.name}");
+//                var marker = controller.markers.firstWhere((p) =>
+//                    p.options.position == MapUtil.getLatLngLocationOfPlace(f));
+//                mapWidgetKey.currentState
+//                    .setState(() => controller.onMarkerTapped.call(marker));
+//                debugPrint("Tapped ${f.name}");
               },
               highlightColor: Theme.of(context).primaryColor,
               child: Padding(
@@ -138,24 +136,24 @@ class _PlacesListViewState extends State<PlacesListView> {
     );
   }
 
-  void deleteItemFromList(List<PlacesSearchResult> places, int index) {
-    var latLng = MapUtil.getLatLngLocationOfPlace(places.elementAt(index));
-    debugPrint(controller.markers.length.toString());
-    mapWidgetKey.currentState?.setState(() {
-      Marker marker = controller.markers
-          .firstWhere((Marker marker) => marker.options.position == latLng);
-      debugPrint("Marker do delete: $marker");
-      controller.removeMarker(marker);
-      debugPrint("markers on map: ${controller.markers.length}");
-    });
-    setState(() {
-      places.removeAt(index);
-    });
-    Scaffold.of(context).showSnackBar(SnackBar(
-      content: Text("Removed"),
-      duration: Duration(seconds: 1),
-    ));
-  }
+//  void deleteItemFromList(List<PlacesSearchResult> places, int index) {
+//    var latLng = MapUtil.getLatLngLocationOfPlace(places.elementAt(index));
+//    debugPrint(controller.markers.length.toString());
+//    mapWidgetKey.currentState?.setState(() {
+//      Marker marker = controller.markers
+//          .firstWhere((Marker marker) => marker.options.position == latLng);
+//      debugPrint("Marker do delete: $marker");
+//      controller.removeMarker(marker);
+//      debugPrint("markers on map: ${controller.markers.length}");
+//    });
+//    setState(() {
+//      places.removeAt(index);
+//    });
+//    Scaffold.of(context).showSnackBar(SnackBar(
+//      content: Text("Removed"),
+//      duration: Duration(seconds: 1),
+//    ));
+//  }
 
   showDeleteDialog(List<PlacesSearchResult> places, int index) {
     return showDialog<bool>(
@@ -172,7 +170,7 @@ class _PlacesListViewState extends State<PlacesListView> {
             new FlatButton(
                 child: new Text('Ok'),
                 onPressed: () {
-                  deleteItemFromList(places, index);
+//                  deleteItemFromList(places, index);
                   Navigator.of(context).pop(true);
                 }),
           ],

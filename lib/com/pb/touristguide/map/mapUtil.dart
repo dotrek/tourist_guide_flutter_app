@@ -26,8 +26,8 @@ class MapUtil {
     var currentUserLocation;
     try {
       currentUserLocation = await location.getLocation();
-      return LatLng(
-          currentUserLocation["latitude"], currentUserLocation["longitude"]);
+      LatLng latLng = LatLng(currentUserLocation.latitude, currentUserLocation.longitude);
+      return latLng;
     } on Exception {
       return null;
     }
@@ -88,11 +88,11 @@ class MapUtil {
   static void appendMarkersToMapView(
       GoogleMapController controller, List<PlacesSearchResult> placesList) {
     placesList.forEach((place) {
-      final markerOptions = MarkerOptions(
-          position: getLatLngLocationOfPlace(place),
-          infoWindowText: InfoWindowText(place.name, place.types?.first));
-      debugPrint(markerOptions.infoWindowText.title);
-      controller.addMarker(markerOptions);
+//      final markerOptions = MarkerOptions(
+//          position: getLatLngLocationOfPlace(place),
+//          infoWindowText: InfoWindowText(place.name, place.types?.first));
+//      debugPrint(markerOptions.infoWindowText.title);
+//      controller.addMarker(markerOptions);
     });
   }
 }

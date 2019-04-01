@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:tourist_guide/com/pb/touristguide/main.dart';
+import 'package:tourist_guide/main.dart';
 
 class DirectionsRequest {
   static String _defaultUrl =

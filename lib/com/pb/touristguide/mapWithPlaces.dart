@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:tourist_guide/com/pb/touristguide/main.dart';
+import 'package:tourist_guide/main.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placesList.dart';
@@ -53,7 +53,7 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
                 value: radius,
                 onChanged: (newValue) {
                   selectedPlaces.clear();
-                  deleteMarkersFromMapView();
+//                  deleteMarkersFromMapView();
                   setState(() {
                     radius = newValue;
                   });
@@ -92,11 +92,6 @@ class MapsWithPlacesWidgetState extends State<MapsWithPlacesWidget> {
     pointsOfInterest.shuffle(Random.secure());
     placesList.addAll(pointsOfInterest);
     MapUtil.appendMarkersToMapView(controller, placesList);
-  }
-
-  void deleteMarkersFromMapView() {
-    controller = mapWidgetKey.currentState?.mapController;
-    controller.clearMarkers();
   }
 
   Future<List<PlacesSearchResult>> findPlaces(

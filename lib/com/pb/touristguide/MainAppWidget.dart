@@ -1,9 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:tourist_guide/com/pb/touristguide/main.dart';
+import 'package:tourist_guide/main.dart';
 import 'package:tourist_guide/com/pb/touristguide/mapWithPlaces.dart';
-import 'package:tourist_guide/com/pb/touristguide/trip/tripDialog.dart';
 import 'package:tourist_guide/com/pb/touristguide/trip/userTrips.dart';
 
 class MainAppWidget extends StatefulWidget {
@@ -109,14 +108,7 @@ class _MainAppWidgetState extends State<MainAppWidget> {
                 ),
               );
             })
-        : _showRouteInfoDialog(context);
+        : null(context);
   }
 
-  Future _showRouteInfoDialog(BuildContext context) async {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return TripDialog();
-        });
-  }
 }

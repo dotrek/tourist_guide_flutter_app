@@ -1,13 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:tourist_guide/com/pb/touristguide/MainAppWidget.dart';
-import 'package:tourist_guide/com/pb/touristguide/auth/baseAuth.dart';
 import 'package:tourist_guide/com/pb/touristguide/auth/signInWidget.dart';
+import 'package:tourist_guide/com/pb/touristguide/mainAppv2.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
-import 'package:tourist_guide/com/pb/touristguide/mapWithPlaces.dart';
 
 ///This API Key will be used for both the interactive maps as well as the static maps.
 
@@ -32,19 +27,22 @@ class LogInWidgetContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: SignInWidget(
-          auth: Auth(),
-          onSignedIn: () =>
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                return MainAppWidget(actualWidget: MapsWithPlacesWidget(),);
-              }))),
+//      child: SignInWidget(
+//          auth: Auth(),
+//          onSignedIn: () =>
+//              Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+//                return MainAppWidget(actualWidget: MapsWithPlacesWidget(),);
+//              }))),
+
+//    child: MainAppWidget(actualWidget: MapsWithPlacesWidget(),),
+    child: MainApp(),
     );
   }
 }
 
 final customTheme = ThemeData(
   primarySwatch: Colors.green,
-  brightness: Brightness.dark,
+  brightness: Brightness.light,
   accentColor: Colors.green.shade900,
   primaryColor: Colors.green,
   dialogTheme: DialogTheme(

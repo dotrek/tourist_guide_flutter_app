@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:tourist_guide/com/pb/touristguide/main.dart';
+import 'package:tourist_guide/main.dart';
 
 class PlaceDetailWidget extends StatefulWidget {
   final String placeId;
