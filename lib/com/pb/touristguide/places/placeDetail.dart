@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/main.dart';
 
@@ -22,43 +23,31 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: place,
-        builder: (context, widgetBuilder) {
-          if (widgetBuilder.hasData) {
-            return Container(
-                child: buildPlaceDetailList(
-                    (widgetBuilder.data as PlacesDetailsResponse).result));
-          } else {
-            return Container(child: CircularProgressIndicator());
-          }
-        });
+    return Scaffold(
+      appBar: AppBar(title: Text("Place details"),),
+      body: FutureBuilder(
+          future: place,
+          builder: (context, widgetBuilder) {
+            if (widgetBuilder.hasData) {
+              return buildPlaceDetailList(
+                  (widgetBuilder.data as PlacesDetailsResponse).result);
+            } else {
+              return Center(
+                  child: SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: CircularProgressIndicator()));
+            }
+          }),
+    );
   }
 
-  String buildPhotoURL(String photoReference) {
-    return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=$photoReference&key=$API_KEY";
+  String buildPhotoURL(String photoReference, int maxWidth) {
+    return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photoreference=$photoReference&key=$API_KEY";
   }
 
-  ListView buildPlaceDetailList(PlaceDetails placeDetail) {
+  Column buildPlaceDetailList(PlaceDetails placeDetail) {
     List<Widget> list = [];
-    if (placeDetail.photos != null) {
-      final photos = placeDetail.photos;
-      list.add(SizedBox(
-          height: 100.0,
-          child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: photos.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                    padding: EdgeInsets.only(right: 1.0),
-                    child: SizedBox(
-                      height: 100,
-                      child: Image.network(
-                          buildPhotoURL(photos[index].photoReference)),
-                    ));
-              })));
-    }
-
     list.add(
       Padding(
           padding:
@@ -82,14 +71,14 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
     }
 
     if (placeDetail.types.isNotEmpty) {
-      String typesText='';
-      placeDetail.types.forEach((type)=>typesText+=type);
+      String typesText = '';
+      placeDetail.types.forEach((type) => typesText += type);
       list.add(
         Padding(
             padding:
                 EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 0.0),
             child: Text(
-              placeDetail.types[0].toUpperCase()+', '+placeDetail.types[1].toUpperCase()+', '+placeDetail.types[2].toUpperCase(),
+              placeDetail.types.toString(),
               style: Theme.of(context).textTheme.caption,
             )),
       );
@@ -149,9 +138,38 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
             )),
       );
     }
-
-    return ListView(
-      shrinkWrap: true,
+    if (placeDetail.photos != null) {
+      final photos = placeDetail.photos;
+      list.add(Expanded(
+        child: StaggeredGridView.countBuilder(
+          itemCount: photos.length,
+          itemBuilder: (context, index) {
+            return Padding(
+                padding: EdgeInsets.all(4.0),
+                child: Hero(
+                  tag: photos[index].photoReference,
+                  child: GestureDetector(
+                      onTap: () {
+                        debugPrint("photo $index tapped");
+                        Navigator.push(
+                            context,
+                            HeroDialogRoute(
+                                builder: (context) => Hero(
+                                      tag: photos[index].photoReference,
+                                      child: Image.network(buildPhotoURL(
+                                          photos[index].photoReference, 1000)),
+                                    )));
+                      },
+                      child: Image.network(
+                          buildPhotoURL(photos[index].photoReference, 200))),
+                ));
+          },
+          staggeredTileBuilder: (int index) => StaggeredTile.fit(2),
+          crossAxisCount: 4,
+        ),
+      ));
+    }
+    return Column(
       children: list,
     );
   }
@@ -159,4 +177,44 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
   void fetchPlaceDetail() async {
     place = mapsPlaces.getDetailsByPlaceId(widget.placeId);
   }
+}
+
+class HeroDialogRoute<T> extends PageRoute<T> {
+  HeroDialogRoute({this.builder}) : super();
+
+  final WidgetBuilder builder;
+
+  @override
+  bool get opaque => false;
+
+  @override
+  bool get barrierDismissible => true;
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 300);
+
+  @override
+  bool get maintainState => true;
+
+  @override
+  Color get barrierColor => Colors.black54;
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    return new FadeTransition(
+        opacity: new CurvedAnimation(parent: animation, curve: Curves.easeOut),
+        child: child);
+  }
+
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
+    return GestureDetector(
+        onTap: () => Navigator.of(context).pop(), child: builder(context));
+  }
+
+  @override
+  // TODO: implement barrierLabel
+  String get barrierLabel => null;
 }

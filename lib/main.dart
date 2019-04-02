@@ -11,7 +11,6 @@ var mapsPlaces = GoogleMapsPlaces(apiKey: API_KEY);
 var mapWidgetKey = new GlobalKey<MapWidgetState>();
 var mainKey = new GlobalKey<ScaffoldState>();
 var userLoginKey = new GlobalKey<SignInWidgetState>();
-List<PlacesSearchResult> selectedPlaces = List<PlacesSearchResult>();
 List<Route> routes = List<Route>();
 bool floatingVisibility = false;
 String userLocationTitle = "Find places nearby";
@@ -43,12 +42,8 @@ class LogInWidgetContainer extends StatelessWidget {
 final customTheme = ThemeData(
   primarySwatch: Colors.green,
   brightness: Brightness.light,
-  accentColor: Colors.green.shade900,
-  primaryColor: Colors.green,
-  dialogTheme: DialogTheme(
-    backgroundColor: Colors.green.shade800,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(45.0)),
-  ),
+  accentColor: Colors.green,
+  primaryColor: Colors.lightGreen,
   inputDecorationTheme: InputDecorationTheme(
     border: OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(4.0)),

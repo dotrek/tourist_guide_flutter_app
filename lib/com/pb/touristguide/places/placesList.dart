@@ -14,10 +14,21 @@ class PlacesListView extends StatefulWidget {
 }
 
 class _PlacesListViewState extends State<PlacesListView> {
+  List<PlacesSearchResult> selectedPlaces = List<PlacesSearchResult>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Select places"),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: null,
+        label: Text("Create"),
+        icon: Icon(Icons.create),
+        backgroundColor:
+            selectedPlaces.isEmpty ? Colors.transparent : Colors.lightGreen,
+      ),
       body: Container(
         child: buildPlacesList(widget.places),
       ),
@@ -28,6 +39,7 @@ class _PlacesListViewState extends State<PlacesListView> {
     final placesWidget = places.map((f) {
       return Card(
         child: InkWell(
+          onTap: () => showDetailPlace(f.placeId),
           onLongPress: () {
             debugPrint("Long Pressed ${f.name}");
             setState(() => _handleLongPress(f));
@@ -36,13 +48,29 @@ class _PlacesListViewState extends State<PlacesListView> {
           child: ListTile(
             contentPadding: EdgeInsets.only(left: 4.0, right: 4.0),
             selected: selectedPlaces.contains(f),
-            title:Text(f.name),
-            subtitle: Text(f.types.first),
-            trailing: Text(
-              f.vicinity,
-              style: Theme.of(context).textTheme.caption,
-            ),
-            ),
+            title: Text(f.name),
+            leading: f.photos == null || f.photos.isEmpty
+                ? SizedBox(
+                    width: 100,
+                    child: Icon(Icons.photo),
+                  )
+                : SizedBox(
+                    width: 100.0,
+                    child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: f.photos.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                              padding: EdgeInsets.only(right: 1.0),
+                              child: SizedBox(
+                                width: 100,
+                                child: Image.network(buildPhotoURL(
+                                    f.photos[index].photoReference)),
+                              ));
+                        })),
+            subtitle: Text(
+                f.types.toString().replaceFirst("[", "").replaceFirst("]", "")),
+          ),
         ),
       );
     }).toList();
@@ -50,41 +78,12 @@ class _PlacesListViewState extends State<PlacesListView> {
     return ListView.builder(
         itemCount: placesWidget.length,
         itemBuilder: (context, int index) {
-          return Slidable(
-            delegate: SlidableDrawerDelegate(),
-            actionExtentRatio: 0.25,
-            actions: <Widget>[
-              Card(
-                child: IconSlideAction(
-                  caption: "Details",
-                  color: Colors.lightGreen,
-                  icon: Icons.details,
-                  onTap: () {
-                    setState(() {
-                      var elementAt = places.elementAt(index);
-                      showDetailPlace(elementAt.placeId);
-                    });
-                  },
-                ),
-              )
-            ],
-            secondaryActions: <Widget>[
-              Card(
-                child: IconSlideAction(
-                  caption: "Remove",
-                  color: Colors.red,
-                  icon: Icons.delete,
-                  onTap: () {
-                    setState(() {
-                      showDeleteDialog(places, index);
-                    });
-                  },
-                ),
-              )
-            ],
-            child: placesWidget.elementAt(index),
-          );
+          return placesWidget.elementAt(index);
         });
+  }
+
+  String buildPhotoURL(String photoReference) {
+    return "https://maps.googleapis.com/maps/api/place/photo?maxheight=100&photoreference=$photoReference&key=$API_KEY";
   }
 
   _handleLongPress(PlacesSearchResult psr) {
@@ -107,48 +106,10 @@ class _PlacesListViewState extends State<PlacesListView> {
     );
   }
 
-  void deleteItemFromList(List<PlacesSearchResult> places, int index) {
-    setState(() {
-      places.removeAt(index);
-    });
-    Scaffold.of(context).showSnackBar(SnackBar(
-      content: Text("Removed"),
-      duration: Duration(seconds: 1),
-    ));
-  }
-
-  showDeleteDialog(List<PlacesSearchResult> places, int index) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return new AlertDialog(
-          title: new Text('Delete'),
-          content: new Text('Item will be deleted'),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(false),
-            ),
-            new FlatButton(
-                child: new Text('Ok'),
-                onPressed: () {
-//                  deleteItemFromList(places, index);
-                  Navigator.of(context).pop(true);
-                }),
-          ],
-        );
-      },
-    );
-  }
-
   void showDetailPlace(String placeId) {
     if (placeId != null) {
-      showDialog(
-        context: context,
-        builder: (context) => AboutDialog(
-            applicationLegalese: null,
-            children: [PlaceDetailWidget(placeId: placeId)]),
-      );
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => PlaceDetailWidget(placeId: placeId)));
     }
   }
 }

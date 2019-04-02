@@ -23,7 +23,7 @@ class _MainAppState extends State<MainApp> {
     return SafeArea(
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.transparent,
+          backgroundColor: placesList.isEmpty?Colors.transparent:Colors.lightGreen,
           onPressed: () {
             if (placesList.isNotEmpty) {
               Navigator.of(context).push(MaterialPageRoute(
@@ -85,7 +85,7 @@ class _MainAppState extends State<MainApp> {
     PlacesSearchResponse cityPointsOfInterests =
         await mapsPlaces.searchNearbyWithRadius(location, 5000,
             type: "point_of_interest",
-            keyword: "(tourist) OR (monument) OR (cathedra) OR (palace)");
+            keyword: "(tourist) OR (monument) OR (cathedral) OR (palace) OR (museum)");
     if (cityPointsOfInterests.isOkay) {
       var cityPointsOfInterestsResult = cityPointsOfInterests.results;
       cityPointsOfInterestsResult.forEach((psr) {
