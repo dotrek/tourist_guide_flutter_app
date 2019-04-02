@@ -35,7 +35,7 @@ class DirectionsRequest {
   static Future<http.Response> _fetchPostWithWaypoints(
       String origin, String destination, String restOfWaypoints) async {
     return http.get(_defaultUrl +
-        "origin=$origin&destination=$destination&waypoints=optimize:true|$restOfWaypoints&mode=walking&key=$API_KEY");
+        "origin=$origin&destination=$destination&waypoints=$restOfWaypoints&mode=walking&key=$API_KEY");
   }
 
   static Future<http.Response> _fetchPost(

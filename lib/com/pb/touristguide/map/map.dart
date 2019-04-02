@@ -62,7 +62,7 @@ class MapWidgetState extends State<MapWidget> {
       widget.markers.add(Marker(
         markerId: MarkerId(psr.id),
         infoWindow: InfoWindow(title: psr.name),
-        position: LatLng(psr.geometry.location.lat, psr.geometry.location.lng),
+        position: MapUtil.getLatLngLocationOfPlace(psr),
       ));
     });
   }

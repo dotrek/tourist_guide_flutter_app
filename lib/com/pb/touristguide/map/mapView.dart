@@ -26,11 +26,13 @@ class _MapViewState extends State<MapView> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           FloatingActionButton(
+            heroTag: "centerLocation",
             mini: true,
             onPressed: () => mapWidgetKey.currentState.animateToUserLocation(),
             child: Center(child: Icon(Icons.my_location)),
           ),
           FloatingActionButton(
+            heroTag: "createTrip",
             backgroundColor:
                 placesList.isEmpty ? Colors.transparent : Colors.lightGreen,
             onPressed: () {
@@ -44,6 +46,7 @@ class _MapViewState extends State<MapView> {
                 );
               } else {
                 Scaffold.of(context).showSnackBar(SnackBar(
+                  duration: Duration(seconds: 2),
                     content: Text(
                         "There are no places on map, type the city name you want to visit or click settings button on search bar and configure nearby search")));
               }
@@ -65,6 +68,7 @@ class _MapViewState extends State<MapView> {
             ),
           ),
           FloatingActionButton(
+            heroTag: "clearMarkers",
             backgroundColor:
                 placesList.isEmpty ? Colors.transparent : Colors.lightGreen,
             mini: true,
@@ -135,7 +139,7 @@ class _MapViewState extends State<MapView> {
       });
       var pointsLatLngList = cityPointsOfInterestsResult
           .map((poi) =>
-              LatLng(poi.geometry.location.lat, poi.geometry.location.lng))
+              MapUtil.getLatLngLocationOfPlace(poi))
           .toList();
       LatLng southwest = MapUtil.getSouthwestPoint(pointsLatLngList);
       LatLng northeast = MapUtil.getNorthEastPoint(pointsLatLngList);

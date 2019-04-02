@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:tourist_guide/main.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
+import 'package:tourist_guide/com/pb/touristguide/trip/tripDialog.dart';
+import 'package:tourist_guide/main.dart';
 
 class PlacesListView extends StatefulWidget {
   final List<PlacesSearchResult> places;
@@ -23,7 +23,16 @@ class _PlacesListViewState extends State<PlacesListView> {
         title: Text("Select places"),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: null,
+        heroTag: "createTrip",
+        onPressed: () => selectedPlaces.isEmpty
+            ? Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text(
+                    "You have to select places you want to add to your trip. Long press on place you are interested to select it.")))
+            : showDialog(
+                context: context,
+                builder: (ctx) => TripDialog(
+                      selectedPlaces: selectedPlaces,
+                    )),
         label: Text("Create"),
         icon: Icon(Icons.create),
         backgroundColor:
