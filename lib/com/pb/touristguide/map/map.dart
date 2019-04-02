@@ -35,11 +35,11 @@ class MapWidgetState extends State<MapWidget> {
   void _defaultOnMapCreated(GoogleMapController controller) {
     setState(() {
       _mapController.complete(controller);
-      _animateToUserLocation();
+      animateToUserLocation();
     });
   }
 
-  void _animateToUserLocation() async {
+  void animateToUserLocation() async {
     final location = await MapUtil.getActualUserLocation();
     if (location != null) {
       final GoogleMapController controller = await _mapController.future;

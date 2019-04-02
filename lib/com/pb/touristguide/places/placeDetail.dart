@@ -24,7 +24,9 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Place details"),),
+      appBar: AppBar(
+        title: Text("Place details"),
+      ),
       body: FutureBuilder(
           future: place,
           builder: (context, widgetBuilder) {
@@ -168,6 +170,10 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
           crossAxisCount: 4,
         ),
       ));
+    } else {
+      list.add(Center(
+        child: Text("No photos currently available"),
+      ));
     }
     return Column(
       children: list,
@@ -215,6 +221,5 @@ class HeroDialogRoute<T> extends PageRoute<T> {
   }
 
   @override
-  // TODO: implement barrierLabel
   String get barrierLabel => null;
 }
