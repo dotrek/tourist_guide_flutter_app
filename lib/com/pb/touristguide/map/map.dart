@@ -7,11 +7,12 @@ import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 
 class MapWidget extends StatefulWidget {
   Set<Marker> markers = Set();
+  final Function onMapCreated;
 
   @override
   State createState() => MapWidgetState();
 
-  MapWidget({Key key}) : super(key: key);
+  MapWidget({Key key, this.onMapCreated}) : super(key: key);
 }
 
 class MapWidgetState extends State<MapWidget> {
@@ -23,7 +24,9 @@ class MapWidgetState extends State<MapWidget> {
   Widget build(BuildContext context) {
     return Container(
       child: GoogleMap(
-        onMapCreated: (controller) => _defaultOnMapCreated(controller),
+        onMapCreated: widget.onMapCreated != null
+            ? widget.onMapCreated
+            : _defaultOnMapCreated,
         myLocationEnabled: true,
         compassEnabled: true,
         initialCameraPosition: _mapCameraPosition,

@@ -18,16 +18,20 @@ class TripDialog extends StatelessWidget {
 
   final List<PlacesSearchResult> selectedPlaces;
 
-
   TripDialog({Key key, this.selectedPlaces}) : super(key: key);
 
   Future getMapWithNecessaryFields() async {
-    _pointsList = selectedPlaces
-        .map((p) => MapUtil.getLatLngLocationOfPlace(p))
-        .toList();
-    _mapWidget = MapWidget();
-    selectedPlaces.forEach((sp)=>_mapWidget.markers.add(Marker(markerId: MarkerId(sp.placeId),)));
+    _pointsList =
+        selectedPlaces.map((p) => MapUtil.getLatLngLocationOfPlace(p)).toList();
     _routeSteps = await MapUtil.getRoute(_pointsList);
+    _mapWidget = MapWidget(
+      onMapCreated: (GoogleMapController controller) =>
+          dialogOnMapCreatedFunction(controller, _routeSteps, _pointsList),
+    );
+    selectedPlaces.forEach((sp) => _mapWidget.markers.add(Marker(
+          markerId: MarkerId(sp.placeId),
+          position: MapUtil.getLatLngLocationOfPlace(sp),
+        )));
     _distance = 0;
     var duration = 0;
     _routeSteps.forEach(
@@ -41,6 +45,7 @@ class TripDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //TODO change tripDialog to normal widget and use navigator to open it
     return AlertDialog(
       contentPadding: EdgeInsets.zero,
       title: Text(
@@ -126,19 +131,15 @@ class TripDialog extends StatelessWidget {
     );
   }
 
-  Future dialogOnMapCreatedFunction(MapWidget mapWidget,
-      List<RouteStep> routeSteps, List<LatLng> pointsList) async {
-    //TODO markers
-    var polylinePoints =
-        routeSteps.map((routeStep) => routeStep.endLoc).toList();
-    polylinePoints.insert(0, routeSteps.first.startLoc);
-    //TODO add polylines
+  void dialogOnMapCreatedFunction(GoogleMapController controller,
+      List<RouteStep> routeSteps, List<LatLng> pointsList) {
     var placesLatLngList = selectedPlaces
         .map((searchResult) => MapUtil.getLatLngLocationOfPlace(searchResult))
         .toList();
-    LatLngBounds(
+    var bounds = LatLngBounds(
         southwest: MapUtil.getSouthwestPoint(placesLatLngList),
         northeast: MapUtil.getNorthEastPoint(placesLatLngList));
+    controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 32.0));
   }
 }
 
