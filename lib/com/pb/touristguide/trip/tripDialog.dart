@@ -27,7 +27,6 @@ class TripDialog extends StatelessWidget {
         .toList();
     _mapWidget = MapWidget();
     selectedPlaces.forEach((sp)=>_mapWidget.markers.add(Marker(markerId: MarkerId(sp.placeId),)));
-    );
     _routeSteps = await MapUtil.getRoute(_pointsList);
     _distance = 0;
     var duration = 0;
@@ -82,7 +81,7 @@ class TripDialog extends StatelessWidget {
                   children: <Widget>[
                     Container(
                       height: 200,
-                      child: mapWidget,
+                      child: _mapWidget,
                     ),
                     Text("Distance: $_distance metres"),
                     Text("Duration: ${printDuration(_parsedDuration)}"),
