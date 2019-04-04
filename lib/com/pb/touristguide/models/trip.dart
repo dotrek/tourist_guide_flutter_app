@@ -5,20 +5,35 @@ import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 
 class Trip {
   String key;
+  String tripName;
   List<RouteStep> routeSteps;
   List<PlaceInfo> placesList;
+  int distance;
+  int durationInSeconds;
 
-  Trip(this.routeSteps, this.placesList);
+  Trip(this.tripName, this.distance, this.durationInSeconds, this.routeSteps,
+      this.placesList);
 
-  Map<String, dynamic> toJson() =>
-      {"routeSteps": routeSteps.map((r)=>r.toJson()).toList(), "placesList": placesList.map((p)=>p.toJson()).toList()};
+  Map<String, dynamic> toJson() => {
+        "tripName": tripName,
+        "distance": distance,
+        "durationInSeconds": durationInSeconds,
+        "routeSteps": routeSteps.map((r) => r.toJson()).toList(),
+        "placesList": placesList.map((p) => p.toJson()).toList()
+      };
 
-  Trip.fromSnapshot(DataSnapshot snapshot){
+  Trip.fromSnapshot(DataSnapshot snapshot) {
+    tripName = snapshot.value['tripName'];
+    distance = snapshot.value['distance'];
+    durationInSeconds = snapshot.value['durationInSeconds'];
     List list = List.from(snapshot.value['routeSteps']);
     List plist = List.from(snapshot.value['placesList']);
-    list.forEach((r)=>debugPrint(r.toString()));
-    plist.forEach((r)=>debugPrint(r.toString()));
-    routeSteps=list.map((r)=>RouteStep.fromJson(r.cast<String, dynamic>())).toList();
-    placesList=plist.map((p)=>PlaceInfo.fromJson(p.cast<String, dynamic>())).toList();
+    list.forEach((r) => debugPrint(r.toString()));
+    plist.forEach((r) => debugPrint(r.toString()));
+    routeSteps =
+        list.map((r) => RouteStep.fromJson(r.cast<String, dynamic>())).toList();
+    placesList = plist
+        .map((p) => PlaceInfo.fromJson(p.cast<String, dynamic>()))
+        .toList();
   }
 }

@@ -39,22 +39,8 @@ class _UserTripsState extends State<UserTrips> {
         itemCount: tripList.length,
         itemBuilder: (context, index) {
           return Card(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(32.0)),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: tripList[index].placesList.length,
-                  itemBuilder: (BuildContext context, int placeIndex) {
-                    return Text(tripList[index].placesList[placeIndex].name);
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return Divider();
-                  },
-                ),
-              ),
+            child: Container(
+              child: Text(tripList[index].tripName),
             ),
           );
         },

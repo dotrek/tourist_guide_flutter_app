@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:tourist_guide/com/pb/touristguide/auth/baseAuth.dart';
 import 'package:tourist_guide/com/pb/touristguide/auth/signInWidget.dart';
 import 'package:tourist_guide/com/pb/touristguide/mainAppv2.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
@@ -17,6 +18,9 @@ String userLocationTitle = "Find places nearby";
 
 void main() {
   runApp(MaterialApp(
+    routes: <String, WidgetBuilder>{
+      '/main': (context) => MainApp(),
+    },
     theme: customTheme,
     home: LogInWidgetContainer(),
   ));
@@ -26,15 +30,10 @@ class LogInWidgetContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-//      child: SignInWidget(
-//          auth: Auth(),
-//          onSignedIn: () =>
-//              Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-//                return MainAppWidget(actualWidget: MapsWithPlacesWidget(),);
-//              }))),
-
-//    child: MainAppWidget(actualWidget: MapsWithPlacesWidget(),),
-    child: MainApp(),
+      child: SignInWidget(
+          auth: Auth(),
+          onSignedIn: () => Navigator.of(context).pushNamed("/main")),
+//      child: MainApp(),
     );
   }
 }
@@ -54,5 +53,3 @@ final customTheme = ThemeData(
     ),
   ),
 );
-
-
