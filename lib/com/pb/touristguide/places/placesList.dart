@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
-import 'package:tourist_guide/com/pb/touristguide/trip/tripDialog.dart';
+import 'package:tourist_guide/com/pb/touristguide/trip/tripView.dart';
 import 'package:tourist_guide/main.dart';
 
 class PlacesListView extends StatefulWidget {
@@ -24,19 +24,16 @@ class _PlacesListViewState extends State<PlacesListView> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: "createTrip",
-        onPressed: () => selectedPlaces.isEmpty
-            ? Scaffold.of(context).showSnackBar(SnackBar(
-                content: Text(
-                    "You have to select places you want to add to your trip. Long press on place you are interested to select it.")))
-            : showDialog(
-                context: context,
-                builder: (ctx) => TripDialog(
+        onPressed: () => selectedPlaces.length<2
+            ? null
+            : Navigator.of(context).push(MaterialPageRoute(
+                builder: (ctx) => TripView(
                       selectedPlaces: selectedPlaces,
-                    )),
+                    ))),
         label: Text("Create"),
         icon: Icon(Icons.create),
         backgroundColor:
-            selectedPlaces.isEmpty ? Colors.transparent : Colors.lightGreen,
+            selectedPlaces.length<2 ? Colors.transparent : Colors.lightGreen,
       ),
       body: Container(
         child: buildPlacesList(widget.places),
@@ -47,6 +44,7 @@ class _PlacesListViewState extends State<PlacesListView> {
   ListView buildPlacesList(List<PlacesSearchResult> places) {
     final placesWidget = places.map((f) {
       return Card(
+        color: Colors.grey.shade100,
         child: InkWell(
           onTap: () => showDetailPlace(f.placeId),
           onLongPress: () {
@@ -63,20 +61,13 @@ class _PlacesListViewState extends State<PlacesListView> {
                     width: 100,
                     child: Icon(Icons.photo),
                   )
-                : SizedBox(
-                    width: 100.0,
-                    child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: f.photos.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                              padding: EdgeInsets.only(right: 1.0),
-                              child: SizedBox(
-                                width: 100,
-                                child: Image.network(buildPhotoURL(
-                                    f.photos[index].photoReference)),
-                              ));
-                        })),
+                : Padding(
+                    padding: EdgeInsets.only(right: 1.0),
+                    child: SizedBox(
+                      width: 100,
+                      child: Image.network(
+                          buildPhotoURL(f.photos.first.photoReference)),
+                    )),
             subtitle: Text(
                 f.types.toString().replaceFirst("[", "").replaceFirst("]", "")),
           ),

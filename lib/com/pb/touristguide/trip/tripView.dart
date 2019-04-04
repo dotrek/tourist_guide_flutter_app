@@ -9,7 +9,7 @@ import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firebaseData.dart';
 
-class TripDialog extends StatelessWidget {
+class TripView extends StatelessWidget {
   List<RouteStep> _routeSteps;
   List<LatLng> _pointsList;
   int _distance;
@@ -18,7 +18,7 @@ class TripDialog extends StatelessWidget {
 
   final List<PlacesSearchResult> selectedPlaces;
 
-  TripDialog({Key key, this.selectedPlaces}) : super(key: key);
+  TripView({Key key, this.selectedPlaces}) : super(key: key);
 
   Future getMapWithNecessaryFields() async {
     _pointsList =
@@ -45,37 +45,24 @@ class TripDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //TODO change tripDialog to normal widget and use navigator to open it
-    return AlertDialog(
-      contentPadding: EdgeInsets.zero,
-      title: Text(
-        "Create trip",
-        textAlign: TextAlign.center,
-      ),
-      actions: <Widget>[
-        FlatButton(
-            onPressed: () {
-              debugPrint('onCreate tapped');
-              Database.push(Trip(
-                      _routeSteps,
-                      selectedPlaces
-                          .map((p) => PlaceInfo(
-                              p.geometry,
-                              p.name,
-                              p.placeId,
-                              p.rating,
-                              p.types,
-                              p.vicinity,
-                              p.formattedAddress))
-                          .toList())
-                  .toJson());
-              Navigator.of(context).pop();
-            },
-            child: Text("Create")),
-        FlatButton(
-            onPressed: () => Navigator.pop(context), child: Text("Cancel")),
-      ],
-      content: Container(
+    return Scaffold(
+      appBar: AppBar(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: () {
+            debugPrint('onCreate tapped');
+            Database.push(Trip(
+                    _routeSteps,
+                    selectedPlaces
+                        .map((p) => PlaceInfo(p.geometry, p.name, p.placeId,
+                            p.rating, p.types, p.vicinity, p.formattedAddress))
+                        .toList())
+                .toJson());
+            Navigator.of(context).pop();
+          },
+          icon: Icon(Icons.add),
+          label: Text("Create trip")),
+      body: Container(
         child: FutureBuilder(
             future: getMapWithNecessaryFields(),
             builder: (context, async) {
@@ -88,8 +75,15 @@ class TripDialog extends StatelessWidget {
                       height: 200,
                       child: _mapWidget,
                     ),
-                    Text("Distance: $_distance metres"),
-                    Text("Duration: ${printDuration(_parsedDuration)}"),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: <Widget>[
+                          Text("Distance: $_distance metres"),
+                          Text("Duration: ${printDuration(_parsedDuration)}"),
+                        ],
+                      ),
+                    ),
                     Flexible(
                       child: ListView.builder(
                         padding: EdgeInsets.all(10.0),
@@ -107,22 +101,13 @@ class TripDialog extends StatelessWidget {
                   ],
                 );
               } else
-                return Container(
-                  width: 200,
-                  height: 200,
-                  child: Center(
-                    child: Stack(
-                      children: <Widget>[
-                        Container(
-                          width: 100,
-                          height: 100,
-                          child: CircularProgressIndicator(
-                            valueColor:
-                                AlwaysStoppedAnimation(Colors.lightBlue),
-                            strokeWidth: 10.0,
-                          ),
-                        ),
-                      ],
+                return Center(
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(Colors.lightGreen),
+                      strokeWidth: 10.0,
                     ),
                   ),
                 );
@@ -156,7 +141,7 @@ class RouteSpotInfo extends StatelessWidget {
         leading: Text("${index + 1}"),
         trailing: Text(
           place.name,
-          textAlign: TextAlign.center,
+          textAlign: TextAlign.right,
         ),
       ),
     );
