@@ -1,14 +1,17 @@
 import 'package:google_maps_webservice/places.dart';
 
 class PlaceInfo {
-    final Geometry geometry;
-    final String name;
-    final String placeId;
-    final num rating;
-    final List<String> types;
-    final String vicinity;
-    final String formattedAddress;
-  PlaceInfo(this.geometry, this.name, this.placeId, this.rating, this.types, this.vicinity, this.formattedAddress);
+  final Geometry geometry;
+  final String name;
+  final String placeId;
+  final num rating;
+  final List<String> types;
+  final String vicinity;
+  final String formattedAddress;
+  final List<String> photoRefs;
+
+  PlaceInfo(this.geometry, this.name, this.placeId, this.rating, this.types,
+      this.vicinity, this.formattedAddress, this.photoRefs);
 
   factory PlaceInfo.fromJson(Map json) => json != null
       ? new PlaceInfo(
@@ -19,6 +22,7 @@ class PlaceInfo {
           (json["types"] as List)?.cast<String>(),
           json["vicinity"],
           json["formatted_address"],
+          (json["photoRefs"] as List)?.cast<String>(),
         )
       : null;
 
@@ -28,6 +32,8 @@ class PlaceInfo {
           "lat": geometry.location.lat,
           "lng": geometry.location.lng
         },
+        'types': types,
+        'photoRefs': photoRefs,
         'rating': rating,
         'placeId': placeId
       };

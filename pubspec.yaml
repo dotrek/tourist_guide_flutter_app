@@ -20,6 +20,7 @@ dependencies:
   optional:
   google_maps_flutter:
   flutter_google_places:
+  palette_generator: ^0.1.1
   swipedetector:
   flutter_slidable:
   location:

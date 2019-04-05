@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 import 'package:tourist_guide/main.dart';
 
 class PlaceDetailWidget extends StatefulWidget {
@@ -42,10 +43,6 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
             }
           }),
     );
-  }
-
-  String buildPhotoURL(String photoReference, int maxWidth) {
-    return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=$maxWidth&photoreference=$photoReference&key=$API_KEY";
   }
 
   Column buildPlaceDetailList(PlaceDetails placeDetail) {
@@ -158,12 +155,15 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
                             HeroDialogRoute(
                                 builder: (context) => Hero(
                                       tag: photos[index].photoReference,
-                                      child: Image.network(buildPhotoURL(
-                                          photos[index].photoReference, 1000)),
+                                      child: Image.network(
+                                          PlaceUtil.buildPhotoURL(API_KEY,
+                                              photos[index].photoReference,
+                                              1000)),
                                     )));
                       },
-                      child: Image.network(
-                          buildPhotoURL(photos[index].photoReference, 200))),
+                      child: Image.network(PlaceUtil.buildPhotoURL(
+                          API_KEY, photos[index].photoReference,
+                          200))),
                 ));
           },
           staggeredTileBuilder: (int index) => StaggeredTile.fit(2),

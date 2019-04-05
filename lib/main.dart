@@ -39,9 +39,8 @@ class LogInWidgetContainer extends StatelessWidget {
 }
 
 final customTheme = ThemeData(
-  primarySwatch: Colors.green,
   brightness: Brightness.light,
-  accentColor: Colors.green,
+  accentColor: Colors.lightGreen,
   primaryColor: Colors.lightGreen,
   inputDecorationTheme: InputDecorationTheme(
     border: OutlineInputBorder(

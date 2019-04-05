@@ -142,10 +142,10 @@ class SignInWidgetState extends State<SignInWidget> {
           child: _formMode == FormMode.LOGIN
               ? new Text('Login',
                   style: new TextStyle(
-                      fontSize: 20.0, color: Theme.of(context).accentColor))
+                      fontSize: 20.0, color: Colors.white))
               : new Text('Create account',
                   style: new TextStyle(
-                      fontSize: 20.0, color: Theme.of(context).primaryColor)),
+                      fontSize: 20.0)),
           onPressed: _validateAndSubmit,
         ));
   }

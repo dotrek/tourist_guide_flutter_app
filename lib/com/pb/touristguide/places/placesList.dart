@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
+import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/trip/tripView.dart';
 import 'package:tourist_guide/main.dart';
 
@@ -24,7 +25,7 @@ class _PlacesListViewState extends State<PlacesListView> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: "createTrip",
-        onPressed: () => selectedPlaces.length<2
+        onPressed: () => selectedPlaces.length < 2
             ? null
             : Navigator.of(context).push(MaterialPageRoute(
                 builder: (ctx) => TripView(
@@ -33,7 +34,7 @@ class _PlacesListViewState extends State<PlacesListView> {
         label: Text("Create"),
         icon: Icon(Icons.create),
         backgroundColor:
-            selectedPlaces.length<2 ? Colors.transparent : Colors.lightGreen,
+            selectedPlaces.length < 2 ? Colors.transparent : Colors.lightGreen,
       ),
       body: Container(
         child: buildPlacesList(widget.places),
@@ -65,8 +66,8 @@ class _PlacesListViewState extends State<PlacesListView> {
                     padding: EdgeInsets.only(right: 1.0),
                     child: SizedBox(
                       width: 100,
-                      child: Image.network(
-                          buildPhotoURL(f.photos.first.photoReference)),
+                      child: Image.network(PlaceUtil.buildPhotoURL(
+                          API_KEY, f.photos.first.photoReference, 100)),
                     )),
             subtitle: Text(
                 f.types.toString().replaceFirst("[", "").replaceFirst("]", "")),
@@ -80,10 +81,6 @@ class _PlacesListViewState extends State<PlacesListView> {
         itemBuilder: (context, int index) {
           return placesWidget.elementAt(index);
         });
-  }
-
-  String buildPhotoURL(String photoReference) {
-    return "https://maps.googleapis.com/maps/api/place/photo?maxheight=100&photoreference=$photoReference&key=$API_KEY";
   }
 
   _handleLongPress(PlacesSearchResult psr) {

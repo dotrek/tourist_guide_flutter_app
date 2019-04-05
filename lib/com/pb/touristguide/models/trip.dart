@@ -10,16 +10,18 @@ class Trip {
   List<PlaceInfo> placesList;
   int distance;
   int durationInSeconds;
+  bool isDone;
 
   Trip(this.tripName, this.distance, this.durationInSeconds, this.routeSteps,
-      this.placesList);
+      this.placesList, this.isDone);
 
   Map<String, dynamic> toJson() => {
         "tripName": tripName,
         "distance": distance,
         "durationInSeconds": durationInSeconds,
         "routeSteps": routeSteps.map((r) => r.toJson()).toList(),
-        "placesList": placesList.map((p) => p.toJson()).toList()
+        "placesList": placesList.map((p) => p.toJson()).toList(),
+        "isDone": isDone
       };
 
   Trip.fromSnapshot(DataSnapshot snapshot) {
@@ -35,5 +37,6 @@ class Trip {
     placesList = plist
         .map((p) => PlaceInfo.fromJson(p.cast<String, dynamic>()))
         .toList();
+    isDone = snapshot.value['isDone'];
   }
 }

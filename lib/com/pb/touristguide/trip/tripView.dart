@@ -2,14 +2,12 @@ import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:tourist_guide/com/pb/touristguide/mainAppv2.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firebaseData.dart';
-import 'package:flushbar/flushbar.dart';
 import 'package:tourist_guide/main.dart';
 
 class TripView extends StatelessWidget {
@@ -182,8 +180,10 @@ class _TripNameDialog extends StatelessWidget {
                                 p.rating,
                                 p.types,
                                 p.vicinity,
-                                p.formattedAddress))
-                            .toList())
+                                p.formattedAddress,
+                                p.photos.map((photo) => photo.photoReference).toList()))
+                            .toList(),
+                        false)
                     .toJson());
                 mainKey.currentState.showSnackBar(SnackBar(
                   content: Row(
