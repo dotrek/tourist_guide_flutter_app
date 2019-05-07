@@ -10,26 +10,36 @@ import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firebaseData.dart';
 import 'package:tourist_guide/main.dart';
 
-class TripView extends StatelessWidget {
-  List<RouteStep> _routeSteps;
-  List<LatLng> _pointsList;
-  int _distance;
-  int _durationInSeconds;
-  MapWidget _mapWidget;
-
+class TripView extends StatefulWidget {
   final List<PlacesSearchResult> selectedPlaces;
 
   TripView({Key key, this.selectedPlaces}) : super(key: key);
 
+  @override
+  _TripViewState createState() => _TripViewState();
+}
+
+class _TripViewState extends State<TripView> {
+  List<RouteStep> _routeSteps;
+
+  List<LatLng> _pointsList;
+
+  int _distance;
+
+  int _durationInSeconds;
+
+  MapWidget _mapWidget;
+
   Future getMapWithNecessaryFields() async {
-    _pointsList =
-        selectedPlaces.map((p) => MapUtil.getLatLngLocationOfPlace(p)).toList();
+    _pointsList = widget.selectedPlaces
+        .map((p) => MapUtil.getLatLngLocationOfPlace(p))
+        .toList();
     _routeSteps = await MapUtil.getRoute(_pointsList);
     _mapWidget = MapWidget(
       onMapCreated: (GoogleMapController controller) =>
           dialogOnMapCreatedFunction(controller, _routeSteps, _pointsList),
     );
-    selectedPlaces.forEach((sp) => _mapWidget.markers.add(Marker(
+    widget.selectedPlaces.forEach((sp) => _mapWidget.markers.add(Marker(
           markerId: MarkerId(sp.placeId),
           position: MapUtil.getLatLngLocationOfPlace(sp),
         )));
@@ -67,20 +77,6 @@ class TripView extends StatelessWidget {
                     ],
                   ),
                 ),
-                Flexible(
-                  child: ListView.builder(
-                    padding: EdgeInsets.all(10.0),
-                    shrinkWrap: true,
-                    itemCount: selectedPlaces.length,
-                    itemBuilder: (context, index) {
-                      var place = selectedPlaces[index];
-                      return RouteSpotInfo(
-                        place: place,
-                        index: index,
-                      );
-                    },
-                  ),
-                ),
               ],
             );
           } else
@@ -108,27 +104,52 @@ class TripView extends StatelessWidget {
                     distance: _distance,
                     durationInSeconds: _durationInSeconds,
                     routeSteps: _routeSteps,
-                    selectedPlaces: selectedPlaces,
+                    selectedPlaces: widget.selectedPlaces,
                   );
                 });
           },
           icon: Icon(Icons.add),
           label: Text("Create trip")),
       body: Container(
-        child: containerBody,
+        child: Column(
+          children: <Widget>[
+            containerBody,
+            Expanded(
+              child: ReorderableListView(
+                  children: widget.selectedPlaces
+                      .map((p) => RouteSpotInfo(
+                            key: Key(
+                                widget.selectedPlaces.indexOf(p).toString()),
+                            place: p,
+                          ))
+                      .toList(),
+                  onReorder: onListReorder),
+            )
+          ],
+        ),
       ),
     );
   }
 
   void dialogOnMapCreatedFunction(GoogleMapController controller,
       List<RouteStep> routeSteps, List<LatLng> pointsList) {
-    var placesLatLngList = selectedPlaces
+    var placesLatLngList = widget.selectedPlaces
         .map((searchResult) => MapUtil.getLatLngLocationOfPlace(searchResult))
         .toList();
     var bounds = LatLngBounds(
         southwest: MapUtil.getSouthwestPoint(placesLatLngList),
         northeast: MapUtil.getNorthEastPoint(placesLatLngList));
     controller.moveCamera(CameraUpdate.newLatLngBounds(bounds, 32.0));
+  }
+
+  void onListReorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+      final item = widget.selectedPlaces.removeAt(oldIndex);
+      widget.selectedPlaces.insert(newIndex, item);
+    });
   }
 }
 
@@ -181,7 +202,9 @@ class _TripNameDialog extends StatelessWidget {
                                 p.types,
                                 p.vicinity,
                                 p.formattedAddress,
-                                p.photos.map((photo) => photo.photoReference).toList()))
+                                p.photos
+                                    .map((photo) => photo.photoReference)
+                                    .toList()))
                             .toList(),
                         false)
                     .toJson());
@@ -209,18 +232,21 @@ class _TripNameDialog extends StatelessWidget {
 
 class RouteSpotInfo extends StatelessWidget {
   final PlacesSearchResult place;
-  final int index;
 
-  const RouteSpotInfo({Key key, this.place, this.index}) : super(key: key);
+  const RouteSpotInfo({Key key, this.place}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Text("${index + 1}"),
-        trailing: Text(
-          place.name,
-          textAlign: TextAlign.right,
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            place.name,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 20),
+          ),
         ),
       ),
     );
