@@ -24,73 +24,75 @@ class _TripViewState extends State<TripView> {
 
   List<LatLng> _pointsList;
 
-  int _distance;
+  int _distance = 0;
 
-  int _durationInSeconds;
+  int _durationInSeconds = 0;
 
   MapWidget _mapWidget;
 
-  Future getMapWithNecessaryFields() async {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _updateMap();
+  }
+
+  void _updateMap() {
     _pointsList = widget.selectedPlaces
         .map((p) => MapUtil.getLatLngLocationOfPlace(p))
         .toList();
-    _routeSteps = await MapUtil.getRoute(_pointsList);
-    _mapWidget = MapWidget(
-      onMapCreated: (GoogleMapController controller) =>
-          dialogOnMapCreatedFunction(controller, _routeSteps, _pointsList),
-    );
-    widget.selectedPlaces.forEach((sp) => _mapWidget.markers.add(Marker(
-          markerId: MarkerId(sp.placeId),
-          position: MapUtil.getLatLngLocationOfPlace(sp),
-        )));
-    _distance = 0;
-    _durationInSeconds = 0;
-    _routeSteps.forEach(
-      (step) {
-        _distance += step.distance;
-        _durationInSeconds += step.durationInSeconds;
-      },
-    );
+    MapUtil.getRoute(_pointsList).then((steps) {
+      setState(() {
+        _routeSteps = steps;
+        _mapWidget = MapWidget(
+          onMapCreated: (GoogleMapController controller) =>
+              onMapCreatedFunction(controller),
+        );
+        //Add markers
+        widget.selectedPlaces.forEach((sp) => _mapWidget.markers.add(Marker(
+            markerId: MarkerId(sp.placeId),
+            position: MapUtil.getLatLngLocationOfPlace(sp),
+            infoWindow: InfoWindow(title: sp.name))));
+        //add polyline
+        List<LatLng> stepsList = steps.map((step) => step.endLoc).toList();
+        stepsList.insert(0, steps.first.startLoc);
+        _mapWidget.polylines
+            .add(Polyline(polylineId: PolylineId(""), points: stepsList));
+        //get distance and duration
+        _distance = 0;
+        _durationInSeconds=0;
+        steps.forEach(
+          (step) {
+            _distance += step.distance;
+            _durationInSeconds += step.durationInSeconds;
+          },
+        );
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget containerBody = FutureBuilder(
-        future: getMapWithNecessaryFields(),
-        builder: (context, async) {
-          if (async.connectionState == ConnectionState.done) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  height: 200,
-                  child: _mapWidget,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: <Widget>[
-                      Text("Distance: $_distance metres"),
-                      Text(
-                          "Duration: ${printDuration(Duration(seconds: _durationInSeconds))}"),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          } else
-            return Center(
-              child: Container(
-                width: 100,
-                height: 100,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation(Colors.lightGreen),
-                  strokeWidth: 10.0,
-                ),
-              ),
-            );
-        });
+    Widget containerBody = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Container(
+          height: 200,
+          child: _mapWidget,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: <Widget>[
+              Text("Distance: $_distance metres"),
+              Text(
+                  "Duration: ${printDuration(Duration(seconds: _durationInSeconds))}"),
+            ],
+          ),
+        ),
+      ],
+    );
     return Scaffold(
       appBar: AppBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -131,8 +133,7 @@ class _TripViewState extends State<TripView> {
     );
   }
 
-  void dialogOnMapCreatedFunction(GoogleMapController controller,
-      List<RouteStep> routeSteps, List<LatLng> pointsList) {
+  void onMapCreatedFunction(GoogleMapController controller) {
     var placesLatLngList = widget.selectedPlaces
         .map((searchResult) => MapUtil.getLatLngLocationOfPlace(searchResult))
         .toList();
@@ -149,6 +150,7 @@ class _TripViewState extends State<TripView> {
       }
       final item = widget.selectedPlaces.removeAt(oldIndex);
       widget.selectedPlaces.insert(newIndex, item);
+      _updateMap();
     });
   }
 }

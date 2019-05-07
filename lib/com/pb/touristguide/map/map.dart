@@ -7,6 +7,7 @@ import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 
 class MapWidget extends StatefulWidget {
   Set<Marker> markers = Set();
+  Set<Polyline> polylines = Set();
   final Function onMapCreated;
 
   @override
@@ -31,6 +32,7 @@ class MapWidgetState extends State<MapWidget> {
         compassEnabled: true,
         initialCameraPosition: _mapCameraPosition,
         markers: widget.markers,
+        polylines: widget.polylines,
       ),
     );
   }
@@ -70,6 +72,17 @@ class MapWidgetState extends State<MapWidget> {
     });
   }
 
+  void addPolyline(Polyline polyline){
+    setState(() {
+      widget.polylines.add(polyline);
+    });
+  }
+
+  void clearPolylines(){
+    setState(() {
+      widget.polylines.clear();
+    });
+  }
   void clearMarkers() {
     setState(() {
       widget.markers.clear();
