@@ -12,6 +12,7 @@ var mapsPlaces = GoogleMapsPlaces(apiKey: API_KEY);
 var mapWidgetKey = new GlobalKey<MapWidgetState>();
 var mainKey = new GlobalKey<ScaffoldState>();
 var userLoginKey = new GlobalKey<SignInWidgetState>();
+var auth = Auth();
 List<Route> routes = List<Route>();
 bool floatingVisibility = false;
 String userLocationTitle = "Find places nearby";
@@ -31,7 +32,7 @@ class LogInWidgetContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: SignInWidget(
-          auth: Auth(),
+          auth: auth,
           onSignedIn: () => Navigator.of(context).pushNamed("/main")),
 //      child: MainApp(),
     );

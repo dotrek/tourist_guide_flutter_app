@@ -16,7 +16,7 @@ dependencies:
   duration: ^2.0.4
   http:
   firebase_auth:
-  firebase_database:
+  cloud_firestore:
   optional:
   google_maps_flutter: ^0.5.13
   flutter_google_places:

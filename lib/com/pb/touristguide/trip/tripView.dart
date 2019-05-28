@@ -7,16 +7,30 @@ import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
-import 'package:tourist_guide/com/pb/touristguide/rest/firebaseData.dart';
+import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
 import 'package:tourist_guide/main.dart';
 
 class TripView extends StatefulWidget {
   final List<PlacesSearchResult> selectedPlaces;
+  MapWidget mapWidget;
 
-  TripView({Key key, this.selectedPlaces}) : super(key: key);
+  TripView({Key key, this.selectedPlaces}) : super(key: key) {
+    mapWidget = MapWidget(
+      latLngBounds: getBounds(selectedPlaces),
+    );
+  }
 
   @override
   _TripViewState createState() => _TripViewState();
+
+  LatLngBounds getBounds(List<PlacesSearchResult> places) {
+    var placesLatLngList = places
+        .map((searchResult) => MapUtil.getLatLngLocationOfPlace(searchResult))
+        .toList();
+    return LatLngBounds(
+        southwest: MapUtil.getSouthwestPoint(placesLatLngList),
+        northeast: MapUtil.getNorthEastPoint(placesLatLngList));
+  }
 }
 
 class _TripViewState extends State<TripView> {
@@ -28,71 +42,81 @@ class _TripViewState extends State<TripView> {
 
   int _durationInSeconds = 0;
 
-  MapWidget _mapWidget;
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _updateMap();
   }
 
-  void _updateMap() {
+  Future _updateMap() async {
     _pointsList = widget.selectedPlaces
         .map((p) => MapUtil.getLatLngLocationOfPlace(p))
         .toList();
-    MapUtil.getRoute(_pointsList).then((steps) {
-      setState(() {
-        _routeSteps = steps;
-        _mapWidget = MapWidget(
-          onMapCreated: (GoogleMapController controller) =>
-              onMapCreatedFunction(controller),
-        );
-        //Add markers
-        widget.selectedPlaces.forEach((sp) => _mapWidget.markers.add(Marker(
-            markerId: MarkerId(sp.placeId),
-            position: MapUtil.getLatLngLocationOfPlace(sp),
-            infoWindow: InfoWindow(title: sp.name))));
-        //add polyline
-        List<LatLng> stepsList = steps.map((step) => step.endLoc).toList();
-        stepsList.insert(0, steps.first.startLoc);
-        _mapWidget.polylines
-            .add(Polyline(polylineId: PolylineId(""), points: stepsList));
-        //get distance and duration
-        _distance = 0;
-        _durationInSeconds=0;
-        steps.forEach(
-          (step) {
-            _distance += step.distance;
-            _durationInSeconds += step.durationInSeconds;
-          },
-        );
-      });
-    });
+    _routeSteps = await MapUtil.getRoute(_pointsList);
+    //Add markers
+    widget.selectedPlaces.forEach((sp) => widget.mapWidget.markers.add(Marker(
+        markerId: MarkerId(sp.placeId),
+        position: MapUtil.getLatLngLocationOfPlace(sp),
+        infoWindow: InfoWindow(title: sp.name))));
+    //add polyline
+    List<LatLng> stepsList = _routeSteps.map((step) => step.endLoc).toList();
+    stepsList.insert(0, _routeSteps.first.startLoc);
+    widget.mapWidget.polylines
+        .add(Polyline(polylineId: PolylineId(""), points: stepsList));
+    //get distance and duration
+    _distance = 0;
+    _durationInSeconds = 0;
+    _routeSteps.forEach(
+      (step) {
+        _distance += step.distance;
+        _durationInSeconds += step.durationInSeconds;
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget containerBody = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Container(
-          height: 200,
-          child: _mapWidget,
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: <Widget>[
-              Text("Distance: $_distance metres"),
-              Text(
-                  "Duration: ${printDuration(Duration(seconds: _durationInSeconds))}"),
-            ],
-          ),
-        ),
-      ],
-    );
+    Widget containerBody = FutureBuilder(
+        future: _updateMap(),
+        builder: (context, async) {
+          if (async.connectionState == ConnectionState.done) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  height: 200,
+                  child: widget.mapWidget,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: <Widget>[
+                      Text("Distance: $_distance metres"),
+                      Text(
+                          "Duration: ${printDuration(Duration(seconds: _durationInSeconds))}"),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          } else
+            return Center(
+              child: Container(
+                width: 100,
+                height: 100,
+                child: Stack(
+                  children: [
+                    widget.mapWidget,
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(Colors.lightGreen),
+                      strokeWidth: 10.0,
+                    ),
+                  ],
+                ),
+              ),
+            );
+        });
     return Scaffold(
       appBar: AppBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -133,16 +157,6 @@ class _TripViewState extends State<TripView> {
     );
   }
 
-  void onMapCreatedFunction(GoogleMapController controller) {
-    var placesLatLngList = widget.selectedPlaces
-        .map((searchResult) => MapUtil.getLatLngLocationOfPlace(searchResult))
-        .toList();
-    var bounds = LatLngBounds(
-        southwest: MapUtil.getSouthwestPoint(placesLatLngList),
-        northeast: MapUtil.getNorthEastPoint(placesLatLngList));
-    controller.moveCamera(CameraUpdate.newLatLngBounds(bounds, 32.0));
-  }
-
   void onListReorder(int oldIndex, int newIndex) {
     setState(() {
       if (newIndex > oldIndex) {
@@ -150,6 +164,8 @@ class _TripViewState extends State<TripView> {
       }
       final item = widget.selectedPlaces.removeAt(oldIndex);
       widget.selectedPlaces.insert(newIndex, item);
+      widget.mapWidget.markers.clear();
+      widget.mapWidget.polylines.clear();
       _updateMap();
     });
   }
@@ -190,26 +206,25 @@ class _TripNameDialog extends StatelessWidget {
             onPressed: () {
               if (_formKey.currentState.validate()) {
                 _formKey.currentState.save();
-                Database.push(Trip(
-                        _controller.text,
-                        distance,
-                        durationInSeconds,
-                        routeSteps,
-                        selectedPlaces
-                            .map((p) => PlaceInfo(
-                                p.geometry,
-                                p.name,
-                                p.placeId,
-                                p.rating,
-                                p.types,
-                                p.vicinity,
-                                p.formattedAddress,
-                                p.photos
-                                    .map((photo) => photo.photoReference)
-                                    .toList()))
-                            .toList(),
-                        false)
-                    .toJson());
+                Database.pushTrip(Trip(
+                    _controller.text,
+                    distance,
+                    durationInSeconds,
+                    routeSteps,
+                    selectedPlaces
+                        .map((p) => PlaceInfo(
+                            p.geometry,
+                            p.name,
+                            p.placeId,
+                            p.rating,
+                            p.types,
+                            p.vicinity,
+                            p.formattedAddress,
+                            p.photos
+                                .map((photo) => photo.photoReference)
+                                .toList()))
+                        .toList(),
+                    false));
                 mainKey.currentState.showSnackBar(SnackBar(
                   content: Row(
                     children: <Widget>[

@@ -1,5 +1,5 @@
-import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tourist_guide/com/pb/touristguide/auth/baseAuth.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 
@@ -11,6 +11,7 @@ class Trip {
   int distance;
   int durationInSeconds;
   bool isDone;
+  String owner;
 
   Trip(this.tripName, this.distance, this.durationInSeconds, this.routeSteps,
       this.placesList, this.isDone);
@@ -21,22 +22,28 @@ class Trip {
         "durationInSeconds": durationInSeconds,
         "routeSteps": routeSteps.map((r) => r.toJson()).toList(),
         "placesList": placesList.map((p) => p.toJson()).toList(),
-        "isDone": isDone
+        "isDone": isDone,
+        "owner": Auth().getCurrentUser()
       };
 
-  Trip.fromSnapshot(DataSnapshot snapshot) {
-    tripName = snapshot.value['tripName'];
-    distance = snapshot.value['distance'];
-    durationInSeconds = snapshot.value['durationInSeconds'];
-    List list = List.from(snapshot.value['routeSteps']);
-    List plist = List.from(snapshot.value['placesList']);
-    list.forEach((r) => debugPrint(r.toString()));
-    plist.forEach((r) => debugPrint(r.toString()));
-    routeSteps =
-        list.map((r) => RouteStep.fromJson(r.cast<String, dynamic>())).toList();
-    placesList = plist
-        .map((p) => PlaceInfo.fromJson(p.cast<String, dynamic>()))
-        .toList();
-    isDone = snapshot.value['isDone'];
+  Trip.fromSnapshot(DocumentSnapshot snapshot) {
+    tripName = snapshot.data['tripName'];
+    distance = snapshot.data['distance'];
+    durationInSeconds = snapshot.data['durationInSeconds'];
+
+    isDone = snapshot.data['isDone'];
+    owner = snapshot.data['owner'];
+  }
+
+  Future getPlacesListFromDocumentSnapshot(DocumentSnapshot document) async {
+    //    List list = List.from(document.data['routeSteps']);
+//    list.forEach((r) => debugPrint(r.toString()));
+//    routeSteps =
+//        list.map((r) => RouteStep.fromJson(r.cast<String, dynamic>())).toList();
+    List plist = List.from(document.data['placesList']);
+    for (DocumentReference docRef in plist) {
+      DocumentSnapshot snapshot = await docRef.get();
+      placesList.add(PlaceInfo.fromJson(snapshot.data));
+    }
   }
 }
