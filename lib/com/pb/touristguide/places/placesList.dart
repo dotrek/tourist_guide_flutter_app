@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_webservice/places.dart';
+import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/trip/tripView.dart';
 import 'package:tourist_guide/main.dart';
 
 class PlacesListView extends StatefulWidget {
-  final List<PlacesSearchResult> places;
+  final List<PlaceInfo> places;
 
   const PlacesListView({Key key, this.places}) : super(key: key);
 
@@ -15,7 +15,7 @@ class PlacesListView extends StatefulWidget {
 }
 
 class _PlacesListViewState extends State<PlacesListView> {
-  List<PlacesSearchResult> selectedPlaces = List<PlacesSearchResult>();
+  List<PlaceInfo> selectedPlaces = List<PlaceInfo>();
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class _PlacesListViewState extends State<PlacesListView> {
             ? null
             : Navigator.of(context).push(MaterialPageRoute(
                 builder: (ctx) => TripView(
-                      selectedPlaces: selectedPlaces,
+                      places: selectedPlaces,
                     ))),
         label: Text("Create"),
         icon: Icon(Icons.create),
@@ -42,7 +42,7 @@ class _PlacesListViewState extends State<PlacesListView> {
     );
   }
 
-  ListView buildPlacesList(List<PlacesSearchResult> places) {
+  ListView buildPlacesList(List<PlaceInfo> places) {
     final placesWidget = places.map((f) {
       return Card(
         color: Colors.grey.shade100,
@@ -57,7 +57,7 @@ class _PlacesListViewState extends State<PlacesListView> {
             contentPadding: EdgeInsets.only(left: 4.0, right: 4.0),
             selected: selectedPlaces.contains(f),
             title: Text(f.name),
-            leading: f.photos == null || f.photos.isEmpty
+            leading: f.photoRefs == null || f.photoRefs.isEmpty
                 ? SizedBox(
                     width: 100,
                     child: Icon(Icons.photo),
@@ -67,7 +67,7 @@ class _PlacesListViewState extends State<PlacesListView> {
                     child: SizedBox(
                       width: 100,
                       child: Image.network(PlaceUtil.buildPhotoURL(
-                          API_KEY, f.photos.first.photoReference, 100)),
+                          API_KEY, f.photoRefs.first, 100)),
                     )),
             subtitle: Text(
                 f.types.toString().replaceFirst("[", "").replaceFirst("]", "")),
@@ -83,7 +83,7 @@ class _PlacesListViewState extends State<PlacesListView> {
         });
   }
 
-  _handleLongPress(PlacesSearchResult psr) {
+  _handleLongPress(PlaceInfo psr) {
     selectedPlaces.contains(psr)
         ? selectedPlaces.remove(psr)
         : selectedPlaces.add(psr);

@@ -81,7 +81,7 @@ class MapWidgetState extends State<MapWidget> {
       widget.markers.add(Marker(
         markerId: MarkerId(psr.id),
         infoWindow: InfoWindow(title: psr.name, onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>PlaceDetailWidget(placeId: psr.placeId,)))),
-        position: MapUtil.getLatLngLocationOfPlace(psr),
+        position: MapUtil.getLatLngLocationOfPlace(psr.geometry),
       ));
     });
   }

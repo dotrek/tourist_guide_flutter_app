@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
+import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placesList.dart';
 import 'package:tourist_guide/main.dart';
 
@@ -40,13 +41,27 @@ class _MapViewState extends State<MapView> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (BuildContext context) => PlacesListView(
-                          places: placesList,
+                          places: placesList
+                              .map((psr) => PlaceInfo(
+                                  psr.geometry,
+                                  psr.name,
+                                  psr.placeId,
+                                  psr.rating,
+                                  psr.types,
+                                  psr.vicinity,
+                                  psr.formattedAddress,
+                                  psr.photos != null
+                                      ? psr.photos
+                                          .map((photo) => photo.photoReference)
+                                          .toList()
+                                      : []))
+                              .toList(),
                         ),
                   ),
                 );
               } else {
                 Scaffold.of(context).showSnackBar(SnackBar(
-                  duration: Duration(seconds: 2),
+                    duration: Duration(seconds: 2),
                     content: Text(
                         "There are no places on map, type the city name you want to visit or click settings button on search bar and configure nearby search")));
               }
@@ -138,8 +153,7 @@ class _MapViewState extends State<MapView> {
         this.placesList = cityPointsOfInterestsResult;
       });
       var pointsLatLngList = cityPointsOfInterestsResult
-          .map((poi) =>
-              MapUtil.getLatLngLocationOfPlace(poi))
+          .map((poi) => MapUtil.getLatLngLocationOfPlace(poi.geometry))
           .toList();
       LatLng southwest = MapUtil.getSouthwestPoint(pointsLatLngList);
       LatLng northeast = MapUtil.getNorthEastPoint(pointsLatLngList);

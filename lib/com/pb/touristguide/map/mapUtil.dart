@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:location/location.dart' as LocationManager;
+import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/directions.dart';
 
@@ -33,8 +34,8 @@ class MapUtil {
     }
   }
 
-  static LatLng getLatLngLocationOfPlace(PlacesSearchResult place) {
-    return LatLng(place.geometry.location.lat, place.geometry.location.lng);
+  static LatLng getLatLngLocationOfPlace(Geometry geometry) {
+    return LatLng(geometry.location.lat, geometry.location.lng);
   }
 
   static double getAverageLatitude(List<LatLng> pointsList) {

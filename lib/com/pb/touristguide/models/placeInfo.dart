@@ -28,9 +28,11 @@ class PlaceInfo {
 
   Map<String, dynamic> toJson() => {
         'name': name,
-        "location": {
-          "lat": geometry.location.lat,
-          "lng": geometry.location.lng
+        "geometry:": {
+          "location": {
+            "lat": geometry.location.lat,
+            "lng": geometry.location.lng
+          }
         },
         'types': types,
         'photoRefs': photoRefs,

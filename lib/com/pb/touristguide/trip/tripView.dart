@@ -11,21 +11,21 @@ import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
 import 'package:tourist_guide/main.dart';
 
 class TripView extends StatefulWidget {
-  final List<PlacesSearchResult> selectedPlaces;
+  final List<PlaceInfo> places;
   MapWidget mapWidget;
 
-  TripView({Key key, this.selectedPlaces}) : super(key: key) {
+  TripView({Key key, this.places}) : super(key: key) {
     mapWidget = MapWidget(
-      latLngBounds: getBounds(selectedPlaces),
+      latLngBounds: getBounds(places),
     );
   }
 
   @override
   _TripViewState createState() => _TripViewState();
 
-  LatLngBounds getBounds(List<PlacesSearchResult> places) {
+  LatLngBounds getBounds(List<PlaceInfo> places) {
     var placesLatLngList = places
-        .map((searchResult) => MapUtil.getLatLngLocationOfPlace(searchResult))
+        .map((place) => MapUtil.getLatLngLocationOfPlace(place.geometry))
         .toList();
     return LatLngBounds(
         southwest: MapUtil.getSouthwestPoint(placesLatLngList),
@@ -49,14 +49,14 @@ class _TripViewState extends State<TripView> {
   }
 
   Future _updateMap() async {
-    _pointsList = widget.selectedPlaces
-        .map((p) => MapUtil.getLatLngLocationOfPlace(p))
+    _pointsList = widget.places
+        .map((p) => MapUtil.getLatLngLocationOfPlace(p.geometry))
         .toList();
     _routeSteps = await MapUtil.getRoute(_pointsList);
     //Add markers
-    widget.selectedPlaces.forEach((sp) => widget.mapWidget.markers.add(Marker(
+    widget.places.forEach((sp) => widget.mapWidget.markers.add(Marker(
         markerId: MarkerId(sp.placeId),
-        position: MapUtil.getLatLngLocationOfPlace(sp),
+        position: MapUtil.getLatLngLocationOfPlace(sp.geometry),
         infoWindow: InfoWindow(title: sp.name))));
     //add polyline
     List<LatLng> stepsList = _routeSteps.map((step) => step.endLoc).toList();
@@ -130,7 +130,7 @@ class _TripViewState extends State<TripView> {
                     distance: _distance,
                     durationInSeconds: _durationInSeconds,
                     routeSteps: _routeSteps,
-                    selectedPlaces: widget.selectedPlaces,
+                    places: widget.places,
                   );
                 });
           },
@@ -142,10 +142,10 @@ class _TripViewState extends State<TripView> {
             containerBody,
             Expanded(
               child: ReorderableListView(
-                  children: widget.selectedPlaces
+                  children: widget.places
                       .map((p) => RouteSpotInfo(
                             key: Key(
-                                widget.selectedPlaces.indexOf(p).toString()),
+                                widget.places.indexOf(p).toString()),
                             place: p,
                           ))
                       .toList(),
@@ -162,8 +162,8 @@ class _TripViewState extends State<TripView> {
       if (newIndex > oldIndex) {
         newIndex -= 1;
       }
-      final item = widget.selectedPlaces.removeAt(oldIndex);
-      widget.selectedPlaces.insert(newIndex, item);
+      final item = widget.places.removeAt(oldIndex);
+      widget.places.insert(newIndex, item);
       widget.mapWidget.markers.clear();
       widget.mapWidget.polylines.clear();
       _updateMap();
@@ -176,14 +176,14 @@ class _TripNameDialog extends StatelessWidget {
   static final _formKey = GlobalKey<FormFieldState>();
 
   final List<RouteStep> routeSteps;
-  final List<PlacesSearchResult> selectedPlaces;
+  final List<PlaceInfo> places;
   final int distance;
   final int durationInSeconds;
 
   _TripNameDialog(
       {Key key,
       this.routeSteps,
-      this.selectedPlaces,
+      this.places,
       this.distance,
       this.durationInSeconds})
       : super(key: key);
@@ -195,6 +195,7 @@ class _TripNameDialog extends StatelessWidget {
       content: TextFormField(
         key: _formKey,
         controller: _controller,
+        // ignore: missing_return
         validator: (value) {
           if (value.isEmpty) {
             return 'Trip name must not be empty';
@@ -207,21 +208,8 @@ class _TripNameDialog extends StatelessWidget {
               var user = auth.getCurrentUser();
               if (_formKey.currentState.validate()) {
                 _formKey.currentState.save();
-                var placesList = selectedPlaces
-                    .map((p) => PlaceInfo(
-                        p.geometry,
-                        p.name,
-                        p.placeId,
-                        p.rating,
-                        p.types,
-                        p.vicinity,
-                        p.formattedAddress,
-                        p.photos
-                            ?.map((photo) => photo.photoReference)
-                            ?.toList()))
-                    .toList();
                 Database.pushTrip(Trip(_controller.text, user, distance,
-                        durationInSeconds, routeSteps, placesList, false))
+                        durationInSeconds, routeSteps, places, false))
                     .then((pushed) {
                   Navigator.popUntil(context, ModalRoute.withName('/main'));
                   Scaffold.of(context).showSnackBar(SnackBar(
@@ -247,7 +235,7 @@ class _TripNameDialog extends StatelessWidget {
 }
 
 class RouteSpotInfo extends StatelessWidget {
-  final PlacesSearchResult place;
+  final PlaceInfo place;
 
   const RouteSpotInfo({Key key, this.place}) : super(key: key);
 

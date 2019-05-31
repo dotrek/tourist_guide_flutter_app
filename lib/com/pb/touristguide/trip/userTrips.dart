@@ -123,7 +123,7 @@ class _UserTripsState extends State<UserTrips> {
               ? SizedBox.fromSize(
                   size: Size(200, 200),
                   child: Opacity(
-                    opacity: 0.5,
+                    opacity: 0.8,
                     child: Container(
                       color: Colors.white,
                       child: Icon(
