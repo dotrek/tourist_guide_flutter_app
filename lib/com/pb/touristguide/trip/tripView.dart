@@ -203,40 +203,39 @@ class _TripNameDialog extends StatelessWidget {
       ),
       actions: <Widget>[
         FlatButton(
-            onPressed: () {
+            onPressed: () async {
+              var user = auth.getCurrentUser();
               if (_formKey.currentState.validate()) {
                 _formKey.currentState.save();
-                Database.pushTrip(Trip(
-                    _controller.text,
-                    distance,
-                    durationInSeconds,
-                    routeSteps,
-                    selectedPlaces
-                        .map((p) => PlaceInfo(
-                            p.geometry,
-                            p.name,
-                            p.placeId,
-                            p.rating,
-                            p.types,
-                            p.vicinity,
-                            p.formattedAddress,
-                            p.photos
-                                .map((photo) => photo.photoReference)
-                                .toList()))
-                        .toList(),
-                    false));
-                mainKey.currentState.showSnackBar(SnackBar(
-                  content: Row(
-                    children: <Widget>[
-                      Icon(Icons.check),
-                      Padding(padding: EdgeInsets.all(8.0)),
-                      Text("Trip created!"),
-                    ],
-                  ),
-                  backgroundColor: Colors.lightGreen,
-                  duration: Duration(seconds: 1),
-                ));
-                Navigator.popUntil(context, ModalRoute.withName('/main'));
+                var placesList = selectedPlaces
+                    .map((p) => PlaceInfo(
+                        p.geometry,
+                        p.name,
+                        p.placeId,
+                        p.rating,
+                        p.types,
+                        p.vicinity,
+                        p.formattedAddress,
+                        p.photos
+                            ?.map((photo) => photo.photoReference)
+                            ?.toList()))
+                    .toList();
+                Database.pushTrip(Trip(_controller.text, user, distance,
+                        durationInSeconds, routeSteps, placesList, false))
+                    .then((pushed) {
+                  Navigator.popUntil(context, ModalRoute.withName('/main'));
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Row(
+                      children: <Widget>[
+                        Icon(Icons.check),
+                        Padding(padding: EdgeInsets.all(8.0)),
+                        Text("Trip created!"),
+                      ],
+                    ),
+                    backgroundColor: Colors.lightGreen,
+                    duration: Duration(seconds: 1),
+                  ));
+                });
               }
             },
             child: Text("Confirm")),

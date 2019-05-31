@@ -1,5 +1,7 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tourist_guide/com/pb/touristguide/auth/baseAuth.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 
@@ -13,20 +15,23 @@ class Trip {
   bool isDone;
   String owner;
 
-  Trip(this.tripName, this.distance, this.durationInSeconds, this.routeSteps,
-      this.placesList, this.isDone);
+  Trip(this.tripName, this.owner, this.distance,
+      this.durationInSeconds, this.routeSteps, this.placesList, this.isDone){
+   this.key=_generateKey();
+  }
 
   Map<String, dynamic> toJson() => {
         "tripName": tripName,
         "distance": distance,
         "durationInSeconds": durationInSeconds,
-        "routeSteps": routeSteps.map((r) => r.toJson()).toList(),
-        "placesList": placesList.map((p) => p.toJson()).toList(),
+//        "routeSteps": routeSteps.map((r) => r.toJson()).toList(),
+//        "placesList": placesList.map((p) => p.toJson()).toList(),
         "isDone": isDone,
-        "owner": Auth().getCurrentUser()
+        "owner": owner
       };
 
   Trip.fromSnapshot(DocumentSnapshot snapshot) {
+    key = snapshot.documentID;
     tripName = snapshot.data['tripName'];
     distance = snapshot.data['distance'];
     durationInSeconds = snapshot.data['durationInSeconds'];
@@ -46,4 +51,10 @@ class Trip {
       placesList.add(PlaceInfo.fromJson(snapshot.data));
     }
   }
+}
+
+String _generateKey() {
+  var values = List<int>.generate(5, (i) => Random.secure().nextInt(256));
+
+  return base64Url.encode(values);
 }

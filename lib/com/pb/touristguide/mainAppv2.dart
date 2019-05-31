@@ -22,7 +22,6 @@ class _MainAppState extends State<MainApp> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        key: mainKey,
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: currentIndex,
             onTap: (index) => setState(() {

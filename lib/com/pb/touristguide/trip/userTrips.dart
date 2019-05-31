@@ -32,10 +32,22 @@ class _UserTripsState extends State<UserTrips> {
         stream: Database.getTrips(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasData) {
-            var tripList = snapshot.data.documents
-                .map((docSnap) => Trip.fromSnapshot(docSnap)).toList();
-            Container(
-              child: getGridView(tripList),
+            return FutureBuilder(
+                future: _getTripList(snapshot.data.documents),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Container(
+                      child: getGridView(snapshot.data),
+                    );
+                  } else {
+                    return Center(child: RefreshProgressIndicator());
+                  }
+                });
+          } else {
+            return Center(
+              child: Container(
+                child: Text("Currently you have no Trips created"),
+              ),
             );
           }
         });
@@ -60,6 +72,7 @@ class _UserTripsState extends State<UserTrips> {
       child: Stack(
         children: <Widget>[
           tripImage,
+          Opacity(opacity: 0.5, child: Container(color: Colors.white70,),),
           Column(
             children: <Widget>[
               Text(
@@ -112,6 +125,16 @@ class _UserTripsState extends State<UserTrips> {
         ],
       ),
     );
+  }
+
+  Future _getTripList(List<DocumentSnapshot> documents) async {
+    List<Trip> trips = [];
+    for (DocumentSnapshot docSnap in documents) {
+      var trip = Trip.fromSnapshot(docSnap);
+      trip.placesList = await Database.getPlacesListFromDocSnapshot(docSnap);
+      trips.add(trip);
+    }
+    return trips;
   }
 }
 

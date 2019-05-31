@@ -10,8 +10,6 @@ import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 const API_KEY = "***REMOVED***";
 var mapsPlaces = GoogleMapsPlaces(apiKey: API_KEY);
 var mapWidgetKey = new GlobalKey<MapWidgetState>();
-var mainKey = new GlobalKey<ScaffoldState>();
-var userLoginKey = new GlobalKey<SignInWidgetState>();
 var auth = Auth();
 List<Route> routes = List<Route>();
 bool floatingVisibility = false;
@@ -33,7 +31,7 @@ class LogInWidgetContainer extends StatelessWidget {
     return Container(
       child: SignInWidget(
           auth: auth,
-          onSignedIn: () => Navigator.of(context).pushNamed("/main")),
+          onSignedIn: () => Navigator.of(context).popAndPushNamed("/main")),
 //      child: MainApp(),
     );
   }
