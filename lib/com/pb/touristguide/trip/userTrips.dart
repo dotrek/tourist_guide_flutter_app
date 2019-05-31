@@ -65,14 +65,11 @@ class _UserTripsState extends State<UserTrips> {
   }
 
   Widget tripItem(Trip trip) {
-    var tripImage = _getRandomTripPhotoRef(trip);
     return Card(
       clipBehavior: Clip.antiAliasWithSaveLayer,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       child: Stack(
         children: <Widget>[
-          tripImage,
-          Opacity(opacity: 0.5, child: Container(color: Colors.white70,),),
           Column(
             children: <Widget>[
               Text(
@@ -122,6 +119,21 @@ class _UserTripsState extends State<UserTrips> {
               )
             ],
           ),
+          trip.isDone
+              ? SizedBox.fromSize(
+                  size: Size(200, 200),
+                  child: Opacity(
+                    opacity: 0.5,
+                    child: Container(
+                      color: Colors.white,
+                      child: Icon(
+                        Icons.done_outline,
+                        color: Colors.greenAccent,
+                        size: 100,
+                      ),
+                    ),
+                  ))
+              : Container(),
         ],
       ),
     );
@@ -138,20 +150,20 @@ class _UserTripsState extends State<UserTrips> {
   }
 }
 
-Image _getRandomTripPhotoRef(Trip trip) {
-  int placesLenght = trip.placesList.length;
-  List photoRefs = trip.placesList[Random().nextInt(placesLenght)].photoRefs;
-  if (photoRefs == null) {
-    return null;
-  }
-  int photoRefsLength = photoRefs.length;
-  if (photoRefsLength == 0) {
-    return null;
-  } else {
-    return Image.network(
-      PlaceUtil.buildPhotoURL(
-          API_KEY, photoRefs[Random().nextInt(photoRefsLength)], 1000),
-      fit: BoxFit.fill,
-    );
-  }
-}
+//Image _getRandomTripPhotoRef(Trip trip) {
+//  int placesLenght = trip.placesList.length;
+//  List photoRefs = trip.placesList[Random().nextInt(placesLenght)].photoRefs;
+//  if (photoRefs == null) {
+//    return null;
+//  }
+//  int photoRefsLength = photoRefs.length;
+//  if (photoRefsLength == 0) {
+//    return null;
+//  } else {
+//    return Image.network(
+//      PlaceUtil.buildPhotoURL(
+//          API_KEY, photoRefs[Random().nextInt(photoRefsLength)], 1000),
+//      fit: BoxFit.fill,
+//    );
+//  }
+//}
