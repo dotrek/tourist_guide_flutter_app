@@ -70,7 +70,7 @@ class _UserTripsState extends State<UserTrips> {
       child: InkWell(
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => TripView(
-                  places: trip.placesList,
+                  trip: trip,
                 ))),
         child: Stack(
           children: <Widget>[
