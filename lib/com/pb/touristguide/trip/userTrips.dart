@@ -7,6 +7,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
+import 'package:tourist_guide/com/pb/touristguide/trip/tripView.dart';
 import 'package:tourist_guide/main.dart';
 
 class UserTrips extends StatefulWidget {
@@ -17,12 +18,10 @@ class UserTrips extends StatefulWidget {
 class _UserTripsState extends State<UserTrips> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
   }
 
@@ -68,73 +67,79 @@ class _UserTripsState extends State<UserTrips> {
     return Card(
       clipBehavior: Clip.antiAliasWithSaveLayer,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-      child: Stack(
-        children: <Widget>[
-          Column(
-            children: <Widget>[
-              Text(
-                trip.tripName,
-                style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-              ),
-              Center(
-                child: Container(
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.directions_walk,
-                            ),
-                            Padding(padding: EdgeInsets.all(4.0)),
-                            Expanded(
-                                child: Text(
-                              "${trip.distance} metres",
-                            )),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.access_time,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(4.0),
-                            ),
-                            Expanded(
-                              child: Text(
-                                "${printDuration(Duration(seconds: trip.durationInSeconds))}",
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => TripView(
+                  places: trip.placesList,
+                ))),
+        child: Stack(
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                Text(
+                  trip.tripName,textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                 ),
-              )
-            ],
-          ),
-          trip.isDone
-              ? SizedBox.fromSize(
-                  size: Size(200, 200),
-                  child: Opacity(
-                    opacity: 0.8,
-                    child: Container(
-                      color: Colors.white,
-                      child: Icon(
-                        Icons.done_outline,
-                        color: Colors.greenAccent,
-                        size: 100,
-                      ),
+                Center(
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.directions_walk,
+                              ),
+                              Padding(padding: EdgeInsets.all(4.0)),
+                              Expanded(
+                                  child: Text(
+                                "${trip.distance} metres",
+                              )),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(4.0),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  "${printDuration(Duration(seconds: trip.durationInSeconds))}",
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ))
-              : Container(),
-        ],
+                  ),
+                )
+              ],
+            ),
+            trip.isDone
+                ? SizedBox.fromSize(
+                    size: Size(200, 200),
+                    child: Opacity(
+                      opacity: 0.8,
+                      child: Container(
+                        color: Colors.white,
+                        child: Icon(
+                          Icons.done_outline,
+                          color: Colors.greenAccent,
+                          size: 100,
+                        ),
+                      ),
+                    ))
+                : Container(),
+          ],
+        ),
       ),
     );
   }

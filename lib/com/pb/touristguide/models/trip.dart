@@ -15,9 +15,9 @@ class Trip {
   bool isDone;
   String owner;
 
-  Trip(this.tripName, this.owner, this.distance,
-      this.durationInSeconds, this.routeSteps, this.placesList, this.isDone){
-   this.key=_generateKey();
+  Trip(this.tripName, this.owner, this.distance, this.durationInSeconds,
+      this.routeSteps, this.placesList, this.isDone) {
+    this.key = _generateKey();
   }
 
   Map<String, dynamic> toJson() => {

@@ -28,15 +28,17 @@ class PlaceInfo {
 
   Map<String, dynamic> toJson() => {
         'name': name,
-        "geometry:": {
+        "geometry": {
           "location": {
             "lat": geometry.location.lat,
             "lng": geometry.location.lng
           }
         },
         'types': types,
+        'formatted_address': formattedAddress,
+        'vicinity': vicinity,
         'photoRefs': photoRefs,
         'rating': rating,
-        'placeId': placeId
+        'place_id': placeId
       };
 }

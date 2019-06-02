@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
+import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/trip/tripView.dart';
@@ -25,11 +26,13 @@ class _PlacesListViewState extends State<PlacesListView> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: "createTrip",
+        //TODO initialize Trip here, remove initialization on TripView widget
         onPressed: () => selectedPlaces.length < 2
             ? null
             : Navigator.of(context).push(MaterialPageRoute(
                 builder: (ctx) => TripView(
-                      places: selectedPlaces,
+                      trip: Trip(
+                          null, null, null, null, null, selectedPlaces, false),
                     ))),
         label: Text("Create"),
         icon: Icon(Icons.create),

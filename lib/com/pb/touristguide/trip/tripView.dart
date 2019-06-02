@@ -1,7 +1,7 @@
 import 'package:duration/duration.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
@@ -11,12 +11,12 @@ import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
 import 'package:tourist_guide/main.dart';
 
 class TripView extends StatefulWidget {
-  final List<PlaceInfo> places;
+  final Trip trip;
   MapWidget mapWidget;
 
-  TripView({Key key, this.places}) : super(key: key) {
+  TripView({Key key, this.trip}) : super(key: key) {
     mapWidget = MapWidget(
-      latLngBounds: getBounds(places),
+      latLngBounds: getBounds(trip.placesList),
     );
   }
 
@@ -44,17 +44,16 @@ class _TripViewState extends State<TripView> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 
   Future _updateMap() async {
-    _pointsList = widget.places
+    _pointsList = widget.trip.placesList
         .map((p) => MapUtil.getLatLngLocationOfPlace(p.geometry))
         .toList();
     _routeSteps = await MapUtil.getRoute(_pointsList);
     //Add markers
-    widget.places.forEach((sp) => widget.mapWidget.markers.add(Marker(
+    widget.trip.placesList.forEach((sp) => widget.mapWidget.markers.add(Marker(
         markerId: MarkerId(sp.placeId),
         position: MapUtil.getLatLngLocationOfPlace(sp.geometry),
         infoWindow: InfoWindow(title: sp.name))));
@@ -118,7 +117,14 @@ class _TripViewState extends State<TripView> {
             );
         });
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.done),
+              color: Colors.black,
+              onPressed: () => widget.trip.isDone = true)
+        ],
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
@@ -130,7 +136,7 @@ class _TripViewState extends State<TripView> {
                     distance: _distance,
                     durationInSeconds: _durationInSeconds,
                     routeSteps: _routeSteps,
-                    places: widget.places,
+                    places: widget.trip.placesList,
                   );
                 });
           },
@@ -142,10 +148,10 @@ class _TripViewState extends State<TripView> {
             containerBody,
             Expanded(
               child: ReorderableListView(
-                  children: widget.places
+                  children: widget.trip.placesList
                       .map((p) => RouteSpotInfo(
                             key: Key(
-                                widget.places.indexOf(p).toString()),
+                                widget.trip.placesList.indexOf(p).toString()),
                             place: p,
                           ))
                       .toList(),
@@ -162,8 +168,8 @@ class _TripViewState extends State<TripView> {
       if (newIndex > oldIndex) {
         newIndex -= 1;
       }
-      final item = widget.places.removeAt(oldIndex);
-      widget.places.insert(newIndex, item);
+      final item = widget.trip.placesList.removeAt(oldIndex);
+      widget.trip.placesList.insert(newIndex, item);
       widget.mapWidget.markers.clear();
       widget.mapWidget.polylines.clear();
       _updateMap();
@@ -210,20 +216,8 @@ class _TripNameDialog extends StatelessWidget {
                 _formKey.currentState.save();
                 Database.pushTrip(Trip(_controller.text, user, distance,
                         durationInSeconds, routeSteps, places, false))
-                    .then((pushed) {
-                  Navigator.popUntil(context, ModalRoute.withName('/main'));
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Row(
-                      children: <Widget>[
-                        Icon(Icons.check),
-                        Padding(padding: EdgeInsets.all(8.0)),
-                        Text("Trip created!"),
-                      ],
-                    ),
-                    backgroundColor: Colors.lightGreen,
-                    duration: Duration(seconds: 1),
-                  ));
-                });
+                    .then((pushed) {});
+                _navigateToMainAndShowSnackbar(context);
               }
             },
             child: Text("Confirm")),
@@ -231,6 +225,16 @@ class _TripNameDialog extends StatelessWidget {
             onPressed: () => Navigator.pop(context), child: Text("Cancel")),
       ],
     );
+  }
+
+  _navigateToMainAndShowSnackbar(BuildContext context) async {
+    Navigator.of(context).popUntil(ModalRoute.withName('/main'));
+    Flushbar(
+      title: "Trip succesfully created",
+      message: "You can check all of your trips on 'My Trips' card",
+      backgroundColor: Colors.lightGreen,
+      duration: Duration(seconds: 3),
+    ).show(context);
   }
 }
 
