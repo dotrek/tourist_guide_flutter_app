@@ -5,7 +5,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
-import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
 import 'package:tourist_guide/main.dart';
@@ -34,88 +33,48 @@ class TripView extends StatefulWidget {
 }
 
 class _TripViewState extends State<TripView> {
-  List<RouteStep> _routeSteps;
-
-  List<LatLng> _pointsList;
-
-  int _distance = 0;
-
-  int _durationInSeconds = 0;
-
   @override
   void initState() {
     super.initState();
+    _updateMap();
   }
 
-  Future _updateMap() async {
-    _pointsList = widget.trip.placesList
-        .map((p) => MapUtil.getLatLngLocationOfPlace(p.geometry))
-        .toList();
-    _routeSteps = await MapUtil.getRoute(_pointsList);
+  _updateMap() {
     //Add markers
     widget.trip.placesList.forEach((sp) => widget.mapWidget.markers.add(Marker(
         markerId: MarkerId(sp.placeId),
         position: MapUtil.getLatLngLocationOfPlace(sp.geometry),
         infoWindow: InfoWindow(title: sp.name))));
     //add polyline
-    List<LatLng> stepsList = _routeSteps.map((step) => step.endLoc).toList();
-    stepsList.insert(0, _routeSteps.first.startLoc);
+    List<LatLng> stepsList =
+        widget.trip.routeSteps.map((step) => step.endLoc).toList();
+    stepsList.insert(0, widget.trip.routeSteps.first.startLoc);
     widget.mapWidget.polylines
         .add(Polyline(polylineId: PolylineId(""), points: stepsList));
-    //get distance and duration
-    _distance = 0;
-    _durationInSeconds = 0;
-    _routeSteps.forEach(
-      (step) {
-        _distance += step.distance;
-        _durationInSeconds += step.durationInSeconds;
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget containerBody = FutureBuilder(
-        future: _updateMap(),
-        builder: (context, async) {
-          if (async.connectionState == ConnectionState.done) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  height: 200,
-                  child: widget.mapWidget,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: <Widget>[
-                      Text("Distance: $_distance metres"),
-                      Text(
-                          "Duration: ${printDuration(Duration(seconds: _durationInSeconds))}"),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          } else
-            return Center(
-              child: Container(
-                width: 100,
-                height: 100,
-                child: Stack(
-                  children: [
-                    widget.mapWidget,
-                    CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.lightGreen),
-                      strokeWidth: 10.0,
-                    ),
-                  ],
-                ),
-              ),
-            );
-        });
+    Widget containerBody = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Container(
+          height: 200,
+          child: widget.mapWidget,
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: <Widget>[
+              Text("Distance: ${widget.trip.distance} metres"),
+              Text(
+                  "Duration: ${printDuration(Duration(seconds: widget.trip.durationInSeconds))}"),
+            ],
+          ),
+        ),
+      ],
+    );
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
@@ -133,10 +92,7 @@ class _TripViewState extends State<TripView> {
                 context: context,
                 builder: (ctx) {
                   return _TripNameDialog(
-                    distance: _distance,
-                    durationInSeconds: _durationInSeconds,
-                    routeSteps: _routeSteps,
-                    places: widget.trip.placesList,
+                    trip: widget.trip,
                   );
                 });
           },
@@ -172,27 +128,19 @@ class _TripViewState extends State<TripView> {
       widget.trip.placesList.insert(newIndex, item);
       widget.mapWidget.markers.clear();
       widget.mapWidget.polylines.clear();
-      _updateMap();
+
+      mapWidgetKey.currentState.setState(() => _updateMap());
     });
   }
 }
 
 class _TripNameDialog extends StatelessWidget {
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   static final _formKey = GlobalKey<FormFieldState>();
 
-  final List<RouteStep> routeSteps;
-  final List<PlaceInfo> places;
-  final int distance;
-  final int durationInSeconds;
+  final Trip trip;
 
-  _TripNameDialog(
-      {Key key,
-      this.routeSteps,
-      this.places,
-      this.distance,
-      this.durationInSeconds})
-      : super(key: key);
+  _TripNameDialog({Key key, this.trip}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -211,13 +159,12 @@ class _TripNameDialog extends StatelessWidget {
       actions: <Widget>[
         FlatButton(
             onPressed: () async {
-              var user = auth.getCurrentUser();
               if (_formKey.currentState.validate()) {
                 _formKey.currentState.save();
-                Database.pushTrip(Trip(_controller.text, user, distance,
-                        durationInSeconds, routeSteps, places, false))
-                    .then((pushed) {});
-                _navigateToMainAndShowSnackbar(context);
+                trip.tripName = _formKey.currentState.value;
+                Database.pushTrip(trip).then((pushed) {
+                  _navigateToMainAndShowSnackbar(context);
+                });
               }
             },
             child: Text("Confirm")),

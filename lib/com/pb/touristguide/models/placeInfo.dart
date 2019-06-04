@@ -13,6 +13,17 @@ class PlaceInfo {
   PlaceInfo(this.geometry, this.name, this.placeId, this.rating, this.types,
       this.vicinity, this.formattedAddress, this.photoRefs);
 
+  factory PlaceInfo.fromPlacesSearchResult(PlacesSearchResult psr) =>
+      new PlaceInfo(
+          psr.geometry,
+          psr.name,
+          psr.placeId,
+          psr.rating,
+          psr.types,
+          psr.vicinity,
+          psr.formattedAddress,
+          psr.photos?.map((photo) => photo.photoReference)?.toList());
+
   factory PlaceInfo.fromJson(Map json) => json != null
       ? new PlaceInfo(
           new Geometry.fromJson(json["geometry"]),

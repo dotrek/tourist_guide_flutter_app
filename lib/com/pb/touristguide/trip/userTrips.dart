@@ -1,14 +1,10 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:duration/duration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
-import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
 import 'package:tourist_guide/com/pb/touristguide/trip/tripView.dart';
-import 'package:tourist_guide/main.dart';
 
 class UserTrips extends StatefulWidget {
   @override
@@ -77,7 +73,8 @@ class _UserTripsState extends State<UserTrips> {
             Column(
               children: <Widget>[
                 Text(
-                  trip.tripName,textAlign: TextAlign.center,
+                  trip.tripName,
+                  textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                 ),
                 Center(
@@ -149,6 +146,8 @@ class _UserTripsState extends State<UserTrips> {
     for (DocumentSnapshot docSnap in documents) {
       var trip = Trip.fromSnapshot(docSnap);
       trip.placesList = await Database.getPlacesListFromDocSnapshot(docSnap);
+      trip.routeSteps =
+          await Database.getRouteStepsFromDocumentSnapshot(docSnap);
       trips.add(trip);
     }
     return trips;

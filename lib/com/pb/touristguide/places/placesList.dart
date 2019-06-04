@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
@@ -26,14 +27,9 @@ class _PlacesListViewState extends State<PlacesListView> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: "createTrip",
-        //TODO initialize Trip here, remove initialization on TripView widget
         onPressed: () => selectedPlaces.length < 2
             ? null
-            : Navigator.of(context).push(MaterialPageRoute(
-                builder: (ctx) => TripView(
-                      trip: Trip(
-                          null, null, null, null, null, selectedPlaces, false),
-                    ))),
+            : initializeTripAndShowView(context, selectedPlaces),
         label: Text("Create"),
         icon: Icon(Icons.create),
         backgroundColor:
@@ -111,5 +107,25 @@ class _PlacesListViewState extends State<PlacesListView> {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => PlaceDetailWidget(placeId: placeId)));
     }
+  }
+
+  void initializeTripAndShowView(
+      BuildContext context, List<PlaceInfo> selectedPlaces) async {
+    var _routeSteps = await MapUtil.getRoute(selectedPlaces
+        .map((p) => MapUtil.getLatLngLocationOfPlace(p.geometry))
+        .toList());
+    var _distance = 0;
+    var _durationInSeconds = 0;
+    _routeSteps.forEach(
+      (step) {
+        _distance += step.distance;
+        _durationInSeconds += step.durationInSeconds;
+      },
+    );
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (ctx) => TripView(
+              trip: Trip(auth.currentUserId, _distance, _durationInSeconds,
+                  _routeSteps, selectedPlaces, false),
+            )));
   }
 }

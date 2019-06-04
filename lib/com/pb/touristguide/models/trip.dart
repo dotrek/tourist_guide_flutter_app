@@ -15,8 +15,8 @@ class Trip {
   bool isDone;
   String owner;
 
-  Trip(this.tripName, this.owner, this.distance, this.durationInSeconds,
-      this.routeSteps, this.placesList, this.isDone) {
+  Trip(this.owner, this.distance, this.durationInSeconds, this.routeSteps,
+      this.placesList, this.isDone) {
     this.key = _generateKey();
   }
 
@@ -38,18 +38,6 @@ class Trip {
 
     isDone = snapshot.data['isDone'];
     owner = snapshot.data['owner'];
-  }
-
-  Future getPlacesListFromDocumentSnapshot(DocumentSnapshot document) async {
-    //    List list = List.from(document.data['routeSteps']);
-//    list.forEach((r) => debugPrint(r.toString()));
-//    routeSteps =
-//        list.map((r) => RouteStep.fromJson(r.cast<String, dynamic>())).toList();
-    List plist = List.from(document.data['placesList']);
-    for (DocumentReference docRef in plist) {
-      DocumentSnapshot snapshot = await docRef.get();
-      placesList.add(PlaceInfo.fromJson(snapshot.data));
-    }
   }
 }
 

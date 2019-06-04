@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
-import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapView.dart';
-import 'package:tourist_guide/com/pb/touristguide/places/placesList.dart';
 import 'package:tourist_guide/com/pb/touristguide/trip/userTrips.dart';
-import 'package:tourist_guide/main.dart';
-import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 
 class MainApp extends StatefulWidget {
   @override

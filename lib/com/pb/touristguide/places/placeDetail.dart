@@ -156,14 +156,14 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
                                 builder: (context) => Hero(
                                       tag: photos[index].photoReference,
                                       child: Image.network(
-                                          PlaceUtil.buildPhotoURL(API_KEY,
+                                          PlaceUtil.buildPhotoURL(
+                                              API_KEY,
                                               photos[index].photoReference,
                                               1000)),
                                     )));
                       },
                       child: Image.network(PlaceUtil.buildPhotoURL(
-                          API_KEY, photos[index].photoReference,
-                          200))),
+                          API_KEY, photos[index].photoReference, 200))),
                 ));
           },
           staggeredTileBuilder: (int index) => StaggeredTile.fit(2),
