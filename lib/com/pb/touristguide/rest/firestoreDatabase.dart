@@ -7,8 +7,30 @@ import 'package:tourist_guide/main.dart';
 class Database {
   static Firestore firestore = Firestore.instance;
 
+  static Future updateTrip(Trip trip) {
+    var documentKey = "${trip.owner}_${trip.tripName}";
+    firestore
+        .collection('trips')
+        .document(documentKey)
+        .updateData(trip.toJson()).then((v){
+      trip.placesList.forEach((place) => firestore
+          .collection('trips')
+          .document(documentKey)
+          .collection('places')
+          .document("${trip.tripName}_${place.placeId}")
+          .updateData(place.toJson()));
+      trip.routeSteps.forEach((routeStep) => firestore
+          .collection('trips')
+          .document(documentKey)
+          .collection('routeSteps')
+          .document(
+          "${trip.tripName}_${routeStep.startLoc}->${routeStep.endLoc}")
+          .updateData(routeStep.toJson()));
+    });
+  }
+
   static Future pushTrip(Trip trip) {
-    var documentKey = "${trip.owner}_${trip.key}";
+    var documentKey = "${trip.owner}_${trip.tripName}";
     return firestore
         .collection('trips')
         .document(documentKey)
@@ -24,7 +46,8 @@ class Database {
           .collection('trips')
           .document(documentKey)
           .collection('routeSteps')
-          .document("${trip.tripName}_${routeStep.startLoc}->${routeStep.endLoc}")
+          .document(
+              "${trip.tripName}_${routeStep.startLoc}->${routeStep.endLoc}")
           .setData(routeStep.toJson()));
     });
   }

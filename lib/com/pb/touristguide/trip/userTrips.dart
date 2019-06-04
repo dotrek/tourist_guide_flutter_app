@@ -67,6 +67,7 @@ class _UserTripsState extends State<UserTrips> {
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => TripView(
                   trip: trip,
+                  tripViewMode: TripViewMode.UPDATE,
                 ))),
         child: Stack(
           children: <Widget>[

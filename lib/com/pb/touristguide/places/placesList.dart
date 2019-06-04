@@ -126,6 +126,7 @@ class _PlacesListViewState extends State<PlacesListView> {
         builder: (ctx) => TripView(
               trip: Trip(auth.currentUserId, _distance, _durationInSeconds,
                   _routeSteps, selectedPlaces, false),
+              tripViewMode: TripViewMode.CREATE,
             )));
   }
 }

@@ -9,11 +9,14 @@ import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
 import 'package:tourist_guide/main.dart';
 
+enum TripViewMode { CREATE, UPDATE }
+
 class TripView extends StatefulWidget {
   final Trip trip;
   MapWidget mapWidget;
+  final TripViewMode tripViewMode;
 
-  TripView({Key key, this.trip}) : super(key: key) {
+  TripView({Key key, this.trip, this.tripViewMode}) : super(key: key) {
     mapWidget = MapWidget(
       latLngBounds: getBounds(trip.placesList),
     );
@@ -78,26 +81,33 @@ class _TripViewState extends State<TripView> {
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.done),
-              color: Colors.black,
-              onPressed: () => widget.trip.isDone = true)
+          widget.tripViewMode == TripViewMode.UPDATE
+              ? IconButton(
+                  icon: Icon(Icons.done),
+                  color: Colors.black,
+                  onPressed: () {
+                    widget.trip.isDone = true;
+                    Database.updateTrip(widget.trip);
+                    Navigator.of(context).pop();
+                  })
+              : Container(),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            debugPrint('onCreate tapped');
-            showDialog(
-                context: context,
-                builder: (ctx) {
-                  return _TripNameDialog(
-                    trip: widget.trip,
-                  );
-                });
-          },
-          icon: Icon(Icons.add),
-          label: Text("Create trip")),
+      floatingActionButton: widget.tripViewMode == TripViewMode.CREATE ?
+          FloatingActionButton.extended(
+              onPressed: () {
+                debugPrint('onCreate tapped');
+                showDialog(
+                    context: context,
+                    builder: (ctx) {
+                      return _TripNameDialog(
+                        trip: widget.trip,
+                      );
+                    });
+              },
+              icon: Icon(Icons.add),
+              label: Text("Create trip")):Container(),
       body: Container(
         child: Column(
           children: <Widget>[
