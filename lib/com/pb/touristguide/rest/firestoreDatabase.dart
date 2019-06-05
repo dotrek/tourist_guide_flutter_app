@@ -9,10 +9,11 @@ class Database {
 
   static Future updateTrip(Trip trip) {
     var documentKey = "${trip.owner}_${trip.tripName}";
-    firestore
+    return firestore
         .collection('trips')
         .document(documentKey)
-        .updateData(trip.toJson()).then((v){
+        .updateData(trip.toJson())
+        .then((v) {
       trip.placesList.forEach((place) => firestore
           .collection('trips')
           .document(documentKey)
@@ -24,7 +25,7 @@ class Database {
           .document(documentKey)
           .collection('routeSteps')
           .document(
-          "${trip.tripName}_${routeStep.startLoc}->${routeStep.endLoc}")
+              "${trip.tripName}_${routeStep.startLoc}->${routeStep.endLoc}")
           .updateData(routeStep.toJson()));
     });
   }

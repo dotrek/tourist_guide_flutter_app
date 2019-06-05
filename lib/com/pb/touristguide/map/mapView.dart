@@ -145,7 +145,7 @@ class _MapViewState extends State<MapView> {
     if (cityPointsOfInterests.isOkay) {
       var cityPointsOfInterestsResult = cityPointsOfInterests.results;
       cityPointsOfInterestsResult.forEach((psr) {
-        currentMapState.addMarker(psr);
+        currentMapState.addMarker(PlaceInfo.fromPlacesSearchResult(psr));
         debugPrint("location name: ${psr.name}");
         debugPrint("location type: ${psr.types.first}");
       });

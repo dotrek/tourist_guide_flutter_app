@@ -1,4 +1,5 @@
 import 'package:google_maps_webservice/places.dart';
+import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 
 class PlaceInfo {
   final Geometry geometry;
@@ -17,7 +18,7 @@ class PlaceInfo {
       new PlaceInfo(
           psr.geometry,
           psr.name,
-          psr.placeId,
+          psr.placeId ?? PlaceUtil.generateKey(),
           psr.rating,
           psr.types,
           psr.vicinity,

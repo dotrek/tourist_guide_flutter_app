@@ -1,9 +1,7 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
+import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 
 class Trip {
   String key;
@@ -17,7 +15,7 @@ class Trip {
 
   Trip(this.owner, this.distance, this.durationInSeconds, this.routeSteps,
       this.placesList, this.isDone) {
-    this.key = _generateKey();
+    this.key = PlaceUtil.generateKey();
   }
 
   Map<String, dynamic> toJson() => {
@@ -39,10 +37,4 @@ class Trip {
     isDone = snapshot.data['isDone'];
     owner = snapshot.data['owner'];
   }
-}
-
-String _generateKey() {
-  var values = List<int>.generate(5, (i) => Random.secure().nextInt(256));
-
-  return base64Url.encode(values);
 }

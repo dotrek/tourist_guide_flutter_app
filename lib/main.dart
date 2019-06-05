@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/auth/baseAuth.dart';
 import 'package:tourist_guide/com/pb/touristguide/auth/signInWidget.dart';
@@ -11,6 +10,7 @@ import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 const API_KEY = "***REMOVED***";
 var mapsPlaces = GoogleMapsPlaces(apiKey: API_KEY);
 var mapWidgetKey = new GlobalKey<MapWidgetState>();
+var tripViewMapWidgetKey = new GlobalKey<MapWidgetState>();
 var auth = Auth();
 List<Route> routes = List<Route>();
 bool floatingVisibility = false;

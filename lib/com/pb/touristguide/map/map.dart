@@ -2,19 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
+import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
 
 class MapWidget extends StatefulWidget {
   Set<Marker> markers = Set();
   Set<Polyline> polylines = Set();
   final LatLngBounds latLngBounds;
+  final VoidCallback onMapCreated;
 
   @override
   State createState() => MapWidgetState();
 
-  MapWidget({Key key, this.latLngBounds}) : super(key: key);
+  MapWidget({Key key, this.latLngBounds, this.onMapCreated}) : super(key: key);
 }
 
 class MapWidgetState extends State<MapWidget> {
@@ -40,6 +41,7 @@ class MapWidgetState extends State<MapWidget> {
     widget.latLngBounds == null
         ? animateToUserLocation()
         : animateToBounds(widget.latLngBounds);
+    widget.onMapCreated?.call();
   }
 
   void check(CameraUpdate u, GoogleMapController c) async {
@@ -76,12 +78,19 @@ class MapWidgetState extends State<MapWidget> {
         LatLngBounds(southwest: southwest, northeast: northeast), 32.0));
   }
 
-  void addMarker(PlacesSearchResult psr) {
+  void addMarker(PlaceInfo place) {
     setState(() {
       widget.markers.add(Marker(
-        markerId: MarkerId(psr.id),
-        infoWindow: InfoWindow(title: psr.name, onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (context)=>PlaceDetailWidget(placeId: psr.placeId,)))),
-        position: MapUtil.getLatLngLocationOfPlace(psr.geometry),
+        markerId: MarkerId(place.placeId),
+        infoWindow: InfoWindow(
+            title: place.name,
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PlaceDetailWidget(
+                          placeId: place.placeId,
+                        )))),
+        position: MapUtil.getLatLngLocationOfPlace(place.geometry),
       ));
     });
   }

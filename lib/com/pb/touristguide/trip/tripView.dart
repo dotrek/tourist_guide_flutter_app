@@ -16,23 +16,10 @@ class TripView extends StatefulWidget {
   MapWidget mapWidget;
   final TripViewMode tripViewMode;
 
-  TripView({Key key, this.trip, this.tripViewMode}) : super(key: key) {
-    mapWidget = MapWidget(
-      latLngBounds: getBounds(trip.placesList),
-    );
-  }
+  TripView({Key key, this.trip, this.tripViewMode}) : super(key: key);
 
   @override
   _TripViewState createState() => _TripViewState();
-
-  LatLngBounds getBounds(List<PlaceInfo> places) {
-    var placesLatLngList = places
-        .map((place) => MapUtil.getLatLngLocationOfPlace(place.geometry))
-        .toList();
-    return LatLngBounds(
-        southwest: MapUtil.getSouthwestPoint(placesLatLngList),
-        northeast: MapUtil.getNorthEastPoint(placesLatLngList));
-  }
 }
 
 class _TripViewState extends State<TripView> {
@@ -42,18 +29,25 @@ class _TripViewState extends State<TripView> {
     _updateMap();
   }
 
+  LatLngBounds _getBounds(List<PlaceInfo> places) {
+    var placesLatLngList = places
+        .map((place) => MapUtil.getLatLngLocationOfPlace(place.geometry))
+        .toList();
+    return LatLngBounds(
+        southwest: MapUtil.getSouthwestPoint(placesLatLngList),
+        northeast: MapUtil.getNorthEastPoint(placesLatLngList));
+  }
+
   _updateMap() {
     //Add markers
-    widget.trip.placesList.forEach((sp) => widget.mapWidget.markers.add(Marker(
-        markerId: MarkerId(sp.placeId),
-        position: MapUtil.getLatLngLocationOfPlace(sp.geometry),
-        infoWindow: InfoWindow(title: sp.name))));
+    widget.trip.placesList
+        .forEach((sp) => tripViewMapWidgetKey.currentState.addMarker(sp));
     //add polyline
     List<LatLng> stepsList =
         widget.trip.routeSteps.map((step) => step.endLoc).toList();
     stepsList.insert(0, widget.trip.routeSteps.first.startLoc);
-    widget.mapWidget.polylines
-        .add(Polyline(polylineId: PolylineId(""), points: stepsList));
+    tripViewMapWidgetKey.currentState
+        .addPolyline(Polyline(polylineId: PolylineId(""), points: stepsList));
   }
 
   @override
@@ -63,9 +57,12 @@ class _TripViewState extends State<TripView> {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Container(
-          height: 200,
-          child: widget.mapWidget,
-        ),
+            height: 200,
+            child: MapWidget(
+              key: tripViewMapWidgetKey,
+              latLngBounds: _getBounds(widget.trip.placesList),
+              onMapCreated: _updateMap,
+            )),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -94,8 +91,8 @@ class _TripViewState extends State<TripView> {
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: widget.tripViewMode == TripViewMode.CREATE ?
-          FloatingActionButton.extended(
+      floatingActionButton: widget.tripViewMode == TripViewMode.CREATE
+          ? FloatingActionButton.extended(
               onPressed: () {
                 debugPrint('onCreate tapped');
                 showDialog(
@@ -107,7 +104,8 @@ class _TripViewState extends State<TripView> {
                     });
               },
               icon: Icon(Icons.add),
-              label: Text("Create trip")):Container(),
+              label: Text("Create trip"))
+          : Container(),
       body: Container(
         child: Column(
           children: <Widget>[
@@ -139,7 +137,7 @@ class _TripViewState extends State<TripView> {
       widget.mapWidget.markers.clear();
       widget.mapWidget.polylines.clear();
 
-      mapWidgetKey.currentState.setState(() => _updateMap());
+      _updateMap();
     });
   }
 }
