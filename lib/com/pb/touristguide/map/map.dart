@@ -7,8 +7,8 @@ import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
 
 class MapWidget extends StatefulWidget {
-  Set<Marker> markers = Set();
-  Set<Polyline> polylines = Set();
+  final Set<Marker> markers = Set();
+  final Set<Polyline> polylines = Set();
   final LatLngBounds latLngBounds;
   final VoidCallback onMapCreated;
 

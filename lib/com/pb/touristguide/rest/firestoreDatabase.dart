@@ -14,6 +14,7 @@ class Database {
         .document(documentKey)
         .updateData(trip.toJson())
         .then((v) {
+          //TO CHANGE
       trip.placesList.forEach((place) => firestore
           .collection('trips')
           .document(documentKey)

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:duration/duration.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +8,8 @@ import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
+import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
-import 'package:tourist_guide/main.dart';
 
 enum TripViewMode { CREATE, UPDATE }
 
@@ -23,11 +25,10 @@ class TripView extends StatefulWidget {
 }
 
 class _TripViewState extends State<TripView> {
-  @override
-  void initState() {
-    super.initState();
-    _updateMap();
-  }
+  Completer<GoogleMapController> _mapController = Completer();
+  GoogleMap _map;
+  Set<Marker> markers = Set();
+  Set<Polyline> polylines = Set();
 
   LatLngBounds _getBounds(List<PlaceInfo> places) {
     var placesLatLngList = places
@@ -38,41 +39,70 @@ class _TripViewState extends State<TripView> {
         northeast: MapUtil.getNorthEastPoint(placesLatLngList));
   }
 
+  _onMapCreated(GoogleMapController controller) {
+    setState(() => _mapController.complete(controller));
+    controller.moveCamera(
+        CameraUpdate.newLatLngBounds(_getBounds(widget.trip.placesList), 32.0));
+    _updateMap();
+  }
+
+  _addMarker(PlaceInfo place) {
+    markers.add(
+      Marker(
+        markerId: MarkerId(place.placeId),
+        infoWindow: InfoWindow(
+            title: place.name,
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PlaceDetailWidget(
+                          placeId: place.placeId,
+                        )))),
+        position: MapUtil.getLatLngLocationOfPlace(place.geometry),
+      ),
+    );
+  }
+
   _updateMap() {
     //Add markers
-    widget.trip.placesList
-        .forEach((sp) => tripViewMapWidgetKey.currentState.addMarker(sp));
+    markers.clear();
+    polylines.clear();
+    widget.trip.placesList.forEach((sp) => _addMarker(sp));
     //add polyline
     List<LatLng> stepsList =
         widget.trip.routeSteps.map((step) => step.endLoc).toList();
     stepsList.insert(0, widget.trip.routeSteps.first.startLoc);
-    tripViewMapWidgetKey.currentState
-        .addPolyline(Polyline(polylineId: PolylineId(""), points: stepsList));
+    polylines.add(Polyline(polylineId: PolylineId(""), points: stepsList));
   }
 
   @override
   Widget build(BuildContext context) {
+    _map = GoogleMap(
+      onMapCreated: _onMapCreated,
+      myLocationEnabled: true,
+      compassEnabled: true,
+      initialCameraPosition: CameraPosition(
+          target: MapUtil.getLatLngLocationOfPlace(
+              widget.trip.placesList.first.geometry)),
+      myLocationButtonEnabled: false,
+      markers: markers,
+      polylines: polylines,
+    );
     Widget containerBody = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Container(
-            height: 200,
-            child: MapWidget(
-              key: tripViewMapWidgetKey,
-              latLngBounds: _getBounds(widget.trip.placesList),
-              onMapCreated: _updateMap,
-            )),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: <Widget>[
-              Text("Distance: ${widget.trip.distance} metres"),
-              Text(
-                  "Duration: ${printDuration(Duration(seconds: widget.trip.durationInSeconds))}"),
-            ],
-          ),
+          height: 200,
+          child: _map,
         ),
+        Column(
+          children: <Widget>[
+            Text("Distance: ${widget.trip.distance} metres"),
+            Text(
+                "Duration: ${printDuration(Duration(seconds: widget.trip.durationInSeconds))}"),
+          ],
+        )
       ],
     );
     return Scaffold(
@@ -127,18 +157,36 @@ class _TripViewState extends State<TripView> {
     );
   }
 
-  void onListReorder(int oldIndex, int newIndex) {
-    setState(() {
-      if (newIndex > oldIndex) {
-        newIndex -= 1;
-      }
-      final item = widget.trip.placesList.removeAt(oldIndex);
-      widget.trip.placesList.insert(newIndex, item);
-      widget.mapWidget.markers.clear();
-      widget.mapWidget.polylines.clear();
+  Future onListReorder(int oldIndex, int newIndex) async {
+    debugPrint("onListReorder called");
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+    final item = widget.trip.placesList.removeAt(oldIndex);
+    widget.trip.placesList.insert(newIndex, item);
+    updateTrip().then((value) => setState(() {
+          _updateMap();
+          if (widget.tripViewMode == TripViewMode.UPDATE) {
+            Database.updateTrip(widget.trip);
+          }
+        }));
+  }
 
-      _updateMap();
-    });
+  Future updateTrip() async {
+    var _routeSteps = await MapUtil.getRoute(widget.trip.placesList
+        .map((p) => MapUtil.getLatLngLocationOfPlace(p.geometry))
+        .toList());
+    var _distance = 0;
+    var _durationInSeconds = 0;
+    _routeSteps.forEach(
+      (step) {
+        _distance += step.distance;
+        _durationInSeconds += step.durationInSeconds;
+      },
+    );
+    widget.trip.routeSteps = _routeSteps;
+    widget.trip.distance = _distance;
+    widget.trip.durationInSeconds = _durationInSeconds;
   }
 }
 
