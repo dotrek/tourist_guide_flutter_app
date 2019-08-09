@@ -18,7 +18,7 @@ dependencies:
   firebase_auth:
   cloud_firestore:
   optional:
-  google_maps_flutter: ^0.5.15
+  google_maps_flutter: ^0.5.20+1
   flutter_google_places:
   palette_generator: ^0.1.1
   location:

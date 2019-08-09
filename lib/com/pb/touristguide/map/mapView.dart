@@ -8,6 +8,8 @@ import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placesList.dart';
 import 'package:tourist_guide/main.dart';
 
+import 'nearbyPlacesDialog.dart';
+
 class MapView extends StatefulWidget {
   @override
   _MapViewState createState() => _MapViewState();
@@ -41,22 +43,22 @@ class _MapViewState extends State<MapView> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (BuildContext context) => PlacesListView(
-                          places: placesList
-                              .map((psr) => PlaceInfo(
-                                  psr.geometry,
-                                  psr.name,
-                                  psr.placeId,
-                                  psr.rating,
-                                  psr.types,
-                                  psr.vicinity,
-                                  psr.formattedAddress,
-                                  psr.photos != null
-                                      ? psr.photos
-                                          .map((photo) => photo.photoReference)
-                                          .toList()
-                                      : []))
-                              .toList(),
-                        ),
+                      places: placesList
+                          .map((psr) => PlaceInfo(
+                              psr.geometry,
+                              psr.name,
+                              psr.placeId,
+                              psr.rating,
+                              psr.types,
+                              psr.vicinity,
+                              psr.formattedAddress,
+                              psr.photos != null
+                                  ? psr.photos
+                                      .map((photo) => photo.photoReference)
+                                      .toList()
+                                  : []))
+                          .toList(),
+                    ),
                   ),
                 );
               } else {
@@ -88,9 +90,9 @@ class _MapViewState extends State<MapView> {
                 placesList.isEmpty ? Colors.transparent : Colors.lightGreen,
             mini: true,
             onPressed: () => setState(() {
-                  placesList.clear();
-                  mapWidgetKey.currentState.clearMarkers();
-                }),
+              placesList.clear();
+              mapWidgetKey.currentState.clearMarkers();
+            }),
             child: Center(child: Icon(Icons.location_off)),
           )
         ],
@@ -113,9 +115,7 @@ class _MapViewState extends State<MapView> {
                       trailing: Icon(Icons.tune),
                       trailingOnTap: () => showDialog(
                           context: context,
-                          builder: (context) => SimpleDialog(
-                                title: Text("Nearby search preferences"),
-                              )),
+                          builder: (context) => NearbyPlacesDialog()),
                       onChanged: (place) {
                         debugPrint("Place: $place");
                         getCityPOI(place);
