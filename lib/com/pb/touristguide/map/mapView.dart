@@ -113,9 +113,13 @@ class _MapViewState extends State<MapView> {
                       types: ["(cities)"],
                       leading: Icon(Icons.search),
                       trailing: Icon(Icons.tune),
-                      trailingOnTap: () => showDialog(
-                          context: context,
-                          builder: (context) => NearbyPlacesDialog()),
+                      trailingOnTap: () async {
+                        Map<String, bool> nearbyPlacesTypes = await showDialog(
+                            context: context,
+                            builder: (context) => NearbyPlacesDialog());
+                        nearbyPlacesTypes.removeWhere((k, v) => !v);
+                        getNearbyPlaces(nearbyPlacesTypes.keys, 2000);
+                      },
                       onChanged: (place) {
                         debugPrint("Place: $place");
                         getCityPOI(place);
@@ -127,6 +131,32 @@ class _MapViewState extends State<MapView> {
         )
       ]),
     );
+  }
+
+  void getNearbyPlaces(Iterable<String> types, num radius) async {
+    LatLng userLatLng = await MapUtil.getActualUserLocation();
+    Location location = new Location(userLatLng.latitude, userLatLng.longitude);
+    PlacesSearchResponse nearbyPlacesResponse = await mapsPlaces
+        .searchNearbyWithRadius(location, radius, type: types.join("|"));
+    if (nearbyPlacesResponse.isOkay) {
+      var nearbyPlacesResult = nearbyPlacesResponse.results;
+      var currentState = mapWidgetKey.currentState;
+      currentState.clearMarkers();
+      nearbyPlacesResult.forEach((psr) {
+        currentState.addMarker(PlaceInfo.fromPlacesSearchResult(psr));
+        debugPrint("location name: ${psr.name}");
+        debugPrint("location type: ${psr.types.first}");
+      });
+      setState(() {
+        this.placesList = nearbyPlacesResult;
+      });
+      var pointsLatLngList = nearbyPlacesResult
+          .map((poi) => MapUtil.getLatLngLocationOfPlace(poi.geometry))
+          .toList();
+      LatLng southwest = MapUtil.getSouthwestPoint(pointsLatLngList);
+      LatLng northeast = MapUtil.getNorthEastPoint(pointsLatLngList);
+      currentState.animateToLocation(southwest, northeast);
+    }
   }
 
   void getCityPOI(String place) async {

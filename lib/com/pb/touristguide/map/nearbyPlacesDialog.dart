@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class NearbyPlacesDialog extends StatefulWidget {
   @override
@@ -45,7 +44,7 @@ class _NearbyPlacesDialogState extends State<NearbyPlacesDialog> {
     return AlertDialog(
       actions: <Widget>[
         FlatButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, _objectTypes),
           child: Text("Search"),
         ),
         FlatButton(
