@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapView.dart';
+import 'package:tourist_guide/com/pb/touristguide/places/favouritePlacesView.dart';
 import 'package:tourist_guide/com/pb/touristguide/trip/userTrips.dart';
 
 class MainApp extends StatefulWidget {
@@ -8,7 +9,7 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  List<Widget> views = [UserTrips(), MapView(), UserTrips()];
+  List<Widget> views = [UserTrips(), MapView(), FavouritePlacesView()];
   var currentIndex = 1;
 
   @override
@@ -18,15 +19,15 @@ class _MainAppState extends State<MainApp> {
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: currentIndex,
             onTap: (index) => setState(() {
-                  this.currentIndex = index;
-                }),
+              this.currentIndex = index;
+            }),
             items: [
               BottomNavigationBarItem(
                   icon: Icon(Icons.polymer), title: Text("My Trips")),
               BottomNavigationBarItem(
                   icon: Icon(Icons.map), title: Text("Map")),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.person), title: Text("User info")),
+                  icon: Icon(Icons.person), title: Text("Favourite places")),
             ],
           ),
           body: views[currentIndex]),

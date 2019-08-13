@@ -44,7 +44,12 @@ class _NearbyPlacesDialogState extends State<NearbyPlacesDialog> {
     return AlertDialog(
       actions: <Widget>[
         FlatButton(
-          onPressed: () => Navigator.pop(context, _objectTypes),
+          onPressed: () {
+            Map<String, dynamic> map = new Map();
+            map["radius"] = _radius;
+            map["types"] = _objectTypes;
+            Navigator.pop(context, map);
+          },
           child: Text("Search"),
         ),
         FlatButton(

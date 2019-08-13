@@ -142,13 +142,11 @@ class _UserTripsState extends State<UserTrips> {
     );
   }
 
-  Future _getTripList(List<DocumentSnapshot> documents) async {
+  Future<List<Trip>> _getTripList(List<DocumentSnapshot> documents) async {
     List<Trip> trips = [];
     for (DocumentSnapshot docSnap in documents) {
       var trip = Trip.fromSnapshot(docSnap);
       trip.placesList = await Database.getPlacesListFromDocSnapshot(docSnap);
-      trip.routeSteps =
-          await Database.getRouteStepsFromDocumentSnapshot(docSnap);
       trips.add(trip);
     }
     return trips;

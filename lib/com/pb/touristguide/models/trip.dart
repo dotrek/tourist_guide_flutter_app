@@ -6,14 +6,13 @@ import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 class Trip {
   String key;
   String tripName;
-  List<RouteStep> routeSteps;
   List<PlaceInfo> placesList;
   int distance;
   int durationInSeconds;
   bool isDone;
   String owner;
 
-  Trip(this.owner, this.distance, this.durationInSeconds, this.routeSteps,
+  Trip(this.owner, this.distance, this.durationInSeconds,
       this.placesList, this.isDone) {
     this.key = PlaceUtil.generateKey();
   }
@@ -22,7 +21,6 @@ class Trip {
         "tripName": tripName,
         "distance": distance,
         "durationInSeconds": durationInSeconds,
-//        "routeSteps": routeSteps.map((r) => r.toJson()).toList(),
 //        "placesList": placesList.map((p) => p.toJson()).toList(),
         "isDone": isDone,
         "owner": owner

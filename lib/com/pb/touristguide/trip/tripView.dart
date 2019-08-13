@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
+import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
@@ -42,9 +43,7 @@ class _TripViewState extends State<TripView> {
   _onMapCreated(GoogleMapController controller) {
     setState(() {
       _mapController.complete(controller);
-      controller.moveCamera(CameraUpdate.newLatLngBounds(
-          _getBounds(widget.trip.placesList), 32.0));
-      _updateMap();
+      _updateMap(controller);
     });
   }
 
@@ -65,16 +64,25 @@ class _TripViewState extends State<TripView> {
     );
   }
 
-  _updateMap() {
+  Future<List<RouteStep>> _updateMap([GoogleMapController controller]) async {
     //Add markers
     markers.clear();
     polylines.clear();
     widget.trip.placesList.forEach((sp) => _addMarker(sp));
     //add polyline
-    List<LatLng> stepsList =
-        widget.trip.routeSteps.map((step) => step.endLoc).toList();
-    stepsList.insert(0, widget.trip.routeSteps.first.startLoc);
+    List<RouteStep> routeSteps = await MapUtil.getRoute(widget.trip.placesList
+        .map((place) => MapUtil.getLatLngLocationOfPlace(place.geometry))
+        .toList());
+    List<LatLng> stepsList = routeSteps.map((step) => step.endLoc).toList();
+    stepsList.insert(0, routeSteps.first.startLoc);
     polylines.add(Polyline(polylineId: PolylineId(""), points: stepsList));
+    if (controller != null) {
+      setState(() {
+        controller.moveCamera(CameraUpdate.newLatLngBounds(
+            _getBounds(widget.trip.placesList), 32.0));
+      });
+    }
+    return routeSteps;
   }
 
   @override
@@ -166,27 +174,25 @@ class _TripViewState extends State<TripView> {
     }
     final item = widget.trip.placesList.removeAt(oldIndex);
     widget.trip.placesList.insert(newIndex, item);
-    updateTrip().then((value) => setState(() {
-          _updateMap();
-          if (widget.tripViewMode == TripViewMode.UPDATE) {
-            Database.updateTrip(widget.trip);
-          }
-        }));
+
+    List<RouteStep> steps = await _updateMap();
+    updateTrip(steps);
+    setState(() {
+      if (widget.tripViewMode == TripViewMode.UPDATE) {
+        Database.updateTrip(widget.trip);
+      }
+    });
   }
 
-  Future updateTrip() async {
-    var _routeSteps = await MapUtil.getRoute(widget.trip.placesList
-        .map((p) => MapUtil.getLatLngLocationOfPlace(p.geometry))
-        .toList());
+  updateTrip(List<RouteStep> routeSteps) {
     var _distance = 0;
     var _durationInSeconds = 0;
-    _routeSteps.forEach(
+    routeSteps.forEach(
       (step) {
         _distance += step.distance;
         _durationInSeconds += step.durationInSeconds;
       },
     );
-    widget.trip.routeSteps = _routeSteps;
     widget.trip.distance = _distance;
     widget.trip.durationInSeconds = _durationInSeconds;
   }

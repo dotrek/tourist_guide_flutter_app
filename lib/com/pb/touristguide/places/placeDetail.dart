@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:tourist_guide/com/pb/touristguide/models/favouritePlaceModel.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
+import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
 import 'package:tourist_guide/main.dart';
 
 class PlaceDetailWidget extends StatefulWidget {
@@ -15,10 +17,13 @@ class PlaceDetailWidget extends StatefulWidget {
 
 class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
   Future<PlacesDetailsResponse> place;
+  bool isFavorite = false;
+  var favoriteIcon = Icons.favorite_border;
 
   @override
   void initState() {
     fetchPlaceDetail();
+    isFavouriteCheck();
     super.initState();
   }
 
@@ -27,6 +32,31 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Place details"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              favoriteIcon,
+              color: isFavorite ? Colors.red : Colors.grey,
+            ),
+            onPressed: () {
+              setState(() {
+                if (isFavorite) {
+                  Database.removeFavoritePlace(widget.placeId)
+                      .then((dynamic) => isFavouriteCheck());
+                } else {
+                  place.then((response) {
+                    PlaceDetails placeDetails = response.result;
+                    Database.pushFavoritePlace(FavouritePlaceModel(
+                        placeDetails.placeId,
+                        placeDetails.name,
+                        auth.getCurrentUser()));
+                  });
+                  isFavouriteCheck();
+                }
+              });
+            },
+          ),
+        ],
       ),
       body: FutureBuilder(
           future: place,
@@ -182,6 +212,20 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
 
   void fetchPlaceDetail() async {
     place = mapsPlaces.getDetailsByPlaceId(widget.placeId);
+  }
+
+  void isFavouriteCheck() {
+    Database.checkIfFavorite(widget.placeId).then((snapshot) {
+      setState(() {
+        if (snapshot.exists) {
+          isFavorite = true;
+          favoriteIcon = Icons.favorite;
+        } else {
+          isFavorite = false;
+          favoriteIcon = Icons.favorite_border;
+        }
+      });
+    });
   }
 }
 

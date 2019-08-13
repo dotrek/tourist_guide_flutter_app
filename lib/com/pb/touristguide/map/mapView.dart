@@ -73,7 +73,7 @@ class _MapViewState extends State<MapView> {
                 Center(child: Icon(Icons.call_missed_outgoing)),
                 Center(
                   child: Text(
-                    "Create trip",
+                    "List of trips",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontStyle: FontStyle.italic,
@@ -114,11 +114,14 @@ class _MapViewState extends State<MapView> {
                       leading: Icon(Icons.search),
                       trailing: Icon(Icons.tune),
                       trailingOnTap: () async {
-                        Map<String, bool> nearbyPlacesTypes = await showDialog(
-                            context: context,
-                            builder: (context) => NearbyPlacesDialog());
-                        nearbyPlacesTypes.removeWhere((k, v) => !v);
-                        getNearbyPlaces(nearbyPlacesTypes.keys, 2000);
+                        Map<String, dynamic> nearbyPreferences =
+                            await showDialog(
+                                context: context,
+                                builder: (context) => NearbyPlacesDialog());
+                        Map<String, bool> typesMap = nearbyPreferences["types"];
+                        double radius = nearbyPreferences["radius"];
+                        typesMap.removeWhere((k, v) => !v);
+                        getNearbyPlaces(typesMap.keys, radius);
                       },
                       onChanged: (place) {
                         debugPrint("Place: $place");
@@ -136,27 +139,31 @@ class _MapViewState extends State<MapView> {
   void getNearbyPlaces(Iterable<String> types, num radius) async {
     LatLng userLatLng = await MapUtil.getActualUserLocation();
     Location location = new Location(userLatLng.latitude, userLatLng.longitude);
-    PlacesSearchResponse nearbyPlacesResponse = await mapsPlaces
-        .searchNearbyWithRadius(location, radius, type: types.join("|"));
-    if (nearbyPlacesResponse.isOkay) {
-      var nearbyPlacesResult = nearbyPlacesResponse.results;
-      var currentState = mapWidgetKey.currentState;
-      currentState.clearMarkers();
-      nearbyPlacesResult.forEach((psr) {
-        currentState.addMarker(PlaceInfo.fromPlacesSearchResult(psr));
-        debugPrint("location name: ${psr.name}");
-        debugPrint("location type: ${psr.types.first}");
-      });
-      setState(() {
-        this.placesList = nearbyPlacesResult;
-      });
-      var pointsLatLngList = nearbyPlacesResult
-          .map((poi) => MapUtil.getLatLngLocationOfPlace(poi.geometry))
-          .toList();
-      LatLng southwest = MapUtil.getSouthwestPoint(pointsLatLngList);
-      LatLng northeast = MapUtil.getNorthEastPoint(pointsLatLngList);
-      currentState.animateToLocation(southwest, northeast);
+    var currentState = mapWidgetKey.currentState;
+    Set<PlacesSearchResult> nearbyPlacesResult = Set();
+    for (String type in types) {
+      PlacesSearchResponse nearbyPlacesResponse =
+          await mapsPlaces.searchNearbyWithRadius(location, radius, type: type);
+      if (nearbyPlacesResponse.isOkay) {
+        var result = nearbyPlacesResponse.results;
+        nearbyPlacesResult.addAll(result);
+      }
     }
+    currentState.clearMarkers();
+    nearbyPlacesResult.forEach((psr) {
+      currentState.addMarker(PlaceInfo.fromPlacesSearchResult(psr));
+      debugPrint("location name: ${psr.name}");
+      debugPrint("location type: ${psr.types.first}");
+    });
+    setState(() {
+      this.placesList = nearbyPlacesResult.toList();
+    });
+    var pointsLatLngList = nearbyPlacesResult
+        .map((place) => MapUtil.getLatLngLocationOfPlace(place.geometry))
+        .toList();
+    LatLng southwest = MapUtil.getSouthwestPoint(pointsLatLngList);
+    LatLng northeast = MapUtil.getNorthEastPoint(pointsLatLngList);
+    currentState.animateToLocation(southwest, northeast);
   }
 
   void getCityPOI(String place) async {
