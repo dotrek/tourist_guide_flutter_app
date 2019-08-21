@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
-import 'package:tourist_guide/com/pb/touristguide/trip/tripView.dart';
+import 'package:tourist_guide/com/pb/touristguide/trips/tripView.dart';
 
 class UserTrips extends StatefulWidget {
   @override

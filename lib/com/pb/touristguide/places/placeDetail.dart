@@ -46,9 +46,10 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
                 } else {
                   place.then((response) {
                     PlaceDetails placeDetails = response.result;
-                    Database.pushFavoritePlace(FavouritePlaceModel(
+                    Database.pushFavoritePlace(FavoritePlaceModel(
                         placeDetails.placeId,
                         placeDetails.name,
+                        placeDetails.formattedAddress,
                         auth.getCurrentUser()));
                   });
                   isFavouriteCheck();
@@ -83,7 +84,7 @@ class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
               EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
           child: Text(
             placeDetail.name,
-            style: Theme.of(context).textTheme.subtitle,
+            style: Theme.of(context).textTheme.title,
           )),
     );
 

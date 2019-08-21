@@ -73,7 +73,7 @@ class _MapViewState extends State<MapView> {
                 Center(child: Icon(Icons.call_missed_outgoing)),
                 Center(
                   child: Text(
-                    "List of trips",
+                    "Places list",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontStyle: FontStyle.italic,

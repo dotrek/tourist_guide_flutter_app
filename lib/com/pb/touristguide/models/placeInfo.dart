@@ -2,6 +2,7 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 
 class PlaceInfo {
+  num order;
   final Geometry geometry;
   final String name;
   final String placeId;
@@ -12,7 +13,8 @@ class PlaceInfo {
   final List<String> photoRefs;
 
   PlaceInfo(this.geometry, this.name, this.placeId, this.rating, this.types,
-      this.vicinity, this.formattedAddress, this.photoRefs);
+      this.vicinity, this.formattedAddress, this.photoRefs,
+      {num order});
 
   factory PlaceInfo.fromPlacesSearchResult(PlacesSearchResult psr) =>
       new PlaceInfo(
@@ -51,6 +53,7 @@ class PlaceInfo {
         'vicinity': vicinity,
         'photoRefs': photoRefs,
         'rating': rating,
-        'place_id': placeId
+        'place_id': placeId,
+        'order': order
       };
 }

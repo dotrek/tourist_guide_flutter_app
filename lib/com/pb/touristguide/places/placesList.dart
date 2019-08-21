@@ -4,7 +4,7 @@ import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
-import 'package:tourist_guide/com/pb/touristguide/trip/tripView.dart';
+import 'package:tourist_guide/com/pb/touristguide/trips/tripView.dart';
 import 'package:tourist_guide/main.dart';
 
 class PlacesListView extends StatefulWidget {
@@ -111,6 +111,7 @@ class _PlacesListViewState extends State<PlacesListView> {
 
   void initializeTripAndShowView(
       BuildContext context, List<PlaceInfo> selectedPlaces) async {
+    selectedPlaces = PlaceUtil.reorderList(selectedPlaces);
     var _routeSteps = await MapUtil.getRoute(selectedPlaces
         .map((p) => MapUtil.getLatLngLocationOfPlace(p.geometry))
         .toList());
@@ -124,7 +125,8 @@ class _PlacesListViewState extends State<PlacesListView> {
     );
     Navigator.of(context).push(MaterialPageRoute(
         builder: (ctx) => TripView(
-              trip: Trip(auth.currentUserId, _distance, _durationInSeconds, selectedPlaces, false),
+              trip: Trip(auth.currentUserId, _distance, _durationInSeconds,
+                  selectedPlaces, false),
               tripViewMode: TripViewMode.CREATE,
             )));
   }

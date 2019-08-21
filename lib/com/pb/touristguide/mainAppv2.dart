@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/mapView.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/favouritePlacesView.dart';
-import 'package:tourist_guide/com/pb/touristguide/trip/userTrips.dart';
+import 'package:tourist_guide/com/pb/touristguide/trips/userTrips.dart';
 
 class MainApp extends StatefulWidget {
   @override

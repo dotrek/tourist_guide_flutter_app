@@ -11,27 +11,33 @@ class Database {
   static Future updateTrip(Trip trip) {
     var documentKey = "${trip.owner}_${trip.tripName}";
     return firestore
+        .collection('db')
+        .document(trip.owner)
         .collection('trips')
         .document(documentKey)
         .updateData(trip.toJson())
-        .then((v) {
-      trip.placesList.forEach((place) => firestore
-          .collection('trips')
-          .document(documentKey)
-          .collection('places')
-          .document("${trip.tripName}_${place.placeId}")
-          .updateData(place.toJson()));
-    });
+        .then((v) => trip.placesList.forEach((place) => firestore
+            .collection('db')
+            .document(trip.owner)
+            .collection('trips')
+            .document(documentKey)
+            .collection('places')
+            .document("${trip.tripName}_${place.placeId}")
+            .updateData(place.toJson())));
   }
 
   static Future pushTrip(Trip trip) {
     var documentKey = "${trip.owner}_${trip.tripName}";
     return firestore
+        .collection('db')
+        .document(trip.owner)
         .collection('trips')
         .document(documentKey)
         .setData(trip.toJson())
         .then((v) {
       trip.placesList.forEach((place) => firestore
+          .collection('db')
+          .document(trip.owner)
           .collection('trips')
           .document(documentKey)
           .collection('places')
@@ -41,45 +47,48 @@ class Database {
   }
 
   static Stream<QuerySnapshot> getTrips() {
+    var currentUser = auth.getCurrentUser();
     return firestore
-        .collection("trips")
-        .where("owner", isEqualTo: auth.getCurrentUser())
+        .collection('db')
+        .document(currentUser)
+        .collection('trips')
         .snapshots();
   }
 
   static Stream<QuerySnapshot> getFavouritePlaces() {
     var currentUser = auth.getCurrentUser();
     return firestore
-        .collection("db")
+        .collection('db')
         .document(currentUser)
-        .collection("favourites")
+        .collection('favorites')
         .snapshots();
   }
 
   static Future removeFavoritePlace(String placeId) {
     var currentUser = auth.getCurrentUser();
     return firestore
-        .collection("db")
+        .collection('db')
         .document(currentUser)
-        .collection("favorites")
+        .collection('favorites')
         .document(placeId)
         .delete();
   }
 
   static Future<DocumentSnapshot> checkIfFavorite(String placeId) {
     return firestore
-        .collection("db")
+        .collection('db')
         .document(auth.getCurrentUser())
-        .collection("favorites")
+        .collection('favorites')
         .document(placeId)
         .get();
   }
 
-  static Future pushFavoritePlace(FavouritePlaceModel favouritePlaceModel) {
+  static Future pushFavoritePlace(FavoritePlaceModel favouritePlaceModel) {
     String documentKey = favouritePlaceModel.placeId;
-    return firestore.collection("db")
+    return firestore
+        .collection('db')
         .document(auth.getCurrentUser())
-        .collection("favorites")
+        .collection('favorites')
         .document(documentKey)
         .setData(favouritePlaceModel.toJson());
   }
@@ -87,7 +96,7 @@ class Database {
   static Future<List<PlaceInfo>> getPlacesListFromDocSnapshot(
       DocumentSnapshot snapshot) async {
     var placesDocuments =
-        await snapshot.reference.collection("places").getDocuments();
+        await snapshot.reference.collection('places').orderBy('order').getDocuments();
     return placesDocuments.documents
         .map((document) => PlaceInfo.fromJson(document.data))
         .toList();

@@ -1,18 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class FavouritePlaceModel {
+class FavoritePlaceModel {
   String placeId;
   String owner;
   String name;
+  String address;
 
-  FavouritePlaceModel(this.placeId, this.name, this.owner);
+  FavoritePlaceModel(this.placeId, this.name, this.address, this.owner);
 
-  Map<String, dynamic> toJson() => {"name": name, "owner": owner};
+  Map<String, dynamic> toJson() =>
+      {"name": name, "owner": owner, "address": address};
 
-  FavouritePlaceModel.fromSnapshot(DocumentSnapshot snapshot) {
+  FavoritePlaceModel.fromSnapshot(DocumentSnapshot snapshot) {
     placeId = snapshot.documentID;
     name = snapshot.data['name'];
     owner = snapshot.data['owner'];
+    address = snapshot.data['address'];
   }
 }

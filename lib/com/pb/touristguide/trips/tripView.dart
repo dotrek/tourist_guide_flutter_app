@@ -9,8 +9,9 @@ import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
+import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
-import 'package:tourist_guide/com/pb/touristguide/trip/tripNameDialog.dart';
+import 'package:tourist_guide/com/pb/touristguide/trips/tripNameDialog.dart';
 
 enum TripViewMode { CREATE, UPDATE }
 
@@ -174,9 +175,9 @@ class _TripViewState extends State<TripView> {
     }
     final item = widget.trip.placesList.removeAt(oldIndex);
     widget.trip.placesList.insert(newIndex, item);
-
+    widget.trip.placesList = PlaceUtil.reorderList(widget.trip.placesList);
     List<RouteStep> steps = await _updateMap();
-    updateTrip(steps);
+    _updateTrip(steps);
     setState(() {
       if (widget.tripViewMode == TripViewMode.UPDATE) {
         Database.updateTrip(widget.trip);
@@ -184,7 +185,7 @@ class _TripViewState extends State<TripView> {
     });
   }
 
-  updateTrip(List<RouteStep> routeSteps) {
+  _updateTrip(List<RouteStep> routeSteps) {
     var _distance = 0;
     var _durationInSeconds = 0;
     routeSteps.forEach(
