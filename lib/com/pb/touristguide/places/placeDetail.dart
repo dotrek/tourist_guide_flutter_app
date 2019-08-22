@@ -6,16 +6,16 @@ import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
 import 'package:tourist_guide/main.dart';
 
-class PlaceDetailWidget extends StatefulWidget {
+class PlaceDetailView extends StatefulWidget {
   final String placeId;
 
-  const PlaceDetailWidget({Key key, this.placeId}) : super(key: key);
+  const PlaceDetailView({Key key, this.placeId}) : super(key: key);
 
   @override
-  _PlaceDetailWidgetState createState() => _PlaceDetailWidgetState();
+  _PlaceDetailViewState createState() => _PlaceDetailViewState();
 }
 
-class _PlaceDetailWidgetState extends State<PlaceDetailWidget> {
+class _PlaceDetailViewState extends State<PlaceDetailView> {
   Future<PlacesDetailsResponse> place;
   bool isFavorite = false;
   var favoriteIcon = Icons.favorite_border;

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/favouritePlaceModel.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
-import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/main.dart';
 

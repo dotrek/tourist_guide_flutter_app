@@ -105,7 +105,7 @@ class _PlacesListViewState extends State<PlacesListView> {
   void showDetailPlace(String placeId) {
     if (placeId != null) {
       Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => PlaceDetailWidget(placeId: placeId)));
+          builder: (context) => PlaceDetailView(placeId: placeId)));
     }
   }
 

@@ -87,7 +87,7 @@ class MapWidgetState extends State<MapWidget> {
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => PlaceDetailWidget(
+                    builder: (context) => PlaceDetailView(
                           placeId: place.placeId,
                         )))),
         position: MapUtil.getLatLngLocationOfPlace(place.geometry),

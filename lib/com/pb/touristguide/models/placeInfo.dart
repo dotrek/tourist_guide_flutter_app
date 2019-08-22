@@ -3,17 +3,17 @@ import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 
 class PlaceInfo {
   num order;
-  final Geometry geometry;
-  final String name;
-  final String placeId;
-  final num rating;
-  final List<String> types;
-  final String vicinity;
-  final String formattedAddress;
-  final List<String> photoRefs;
+  final Geometry _geometry;
+  final String _name;
+  final String _placeId;
+  final num _rating;
+  final List<String> _types;
+  final String _vicinity;
+  final String _formattedAddress;
+  final List<String> _photoRefs;
 
-  PlaceInfo(this.geometry, this.name, this.placeId, this.rating, this.types,
-      this.vicinity, this.formattedAddress, this.photoRefs,
+  PlaceInfo(this._geometry, this._name, this._placeId, this._rating,
+      this._types, this._vicinity, this._formattedAddress, this._photoRefs,
       {num order});
 
   factory PlaceInfo.fromPlacesSearchResult(PlacesSearchResult psr) =>
@@ -41,19 +41,36 @@ class PlaceInfo {
       : null;
 
   Map<String, dynamic> toJson() => {
-        'name': name,
+        'name': _name,
         "geometry": {
           "location": {
-            "lat": geometry.location.lat,
-            "lng": geometry.location.lng
+            "lat": _geometry.location.lat,
+            "lng": _geometry.location.lng
           }
         },
-        'types': types,
-        'formatted_address': formattedAddress,
-        'vicinity': vicinity,
-        'photoRefs': photoRefs,
-        'rating': rating,
-        'place_id': placeId,
+        'types': _types,
+        'formatted_address': _formattedAddress,
+        'vicinity': _vicinity,
+        'photoRefs': _photoRefs,
+        'rating': _rating,
+        'place_id': _placeId,
         'order': order
       };
+
+  List<String> get photoRefs => _photoRefs;
+
+  String get formattedAddress => _formattedAddress;
+
+  String get vicinity => _vicinity;
+
+  List<String> get types => _types;
+
+  num get rating => _rating;
+
+  String get placeId => _placeId;
+
+  String get name => _name;
+
+  Geometry get geometry => _geometry;
+
 }

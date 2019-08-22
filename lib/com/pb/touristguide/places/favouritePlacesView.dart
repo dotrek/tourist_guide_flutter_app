@@ -43,7 +43,7 @@ class _FavouritePlacesViewState extends State<FavouritePlacesView> {
                           : Container(),
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => PlaceDetailWidget(
+                          builder: (context) => PlaceDetailView(
                             placeId: favoritePlace.placeId,
                           ),
                         ),
