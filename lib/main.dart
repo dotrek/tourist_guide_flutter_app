@@ -17,7 +17,7 @@ bool floatingVisibility = false;
 String userLocationTitle = "Find places nearby";
 
 void main() {
-  runApp(MaterialApp(
+  runApp(MaterialApp(debugShowCheckedModeBanner: false,
     routes: <String, WidgetBuilder>{
       '/main': (context) => MainApp(),
     },

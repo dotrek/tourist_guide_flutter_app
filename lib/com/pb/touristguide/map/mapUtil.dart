@@ -84,15 +84,4 @@ class MapUtil {
     });
     return LatLng(maxLat, maxLon);
   }
-
-  static void appendMarkersToMapView(
-      GoogleMapController controller, List<PlacesSearchResult> placesList) {
-    placesList.forEach((place) {
-//      final markerOptions = MarkerOptions(
-//          position: getLatLngLocationOfPlace(place),
-//          infoWindowText: InfoWindowText(place.name, place.types?.first));
-//      debugPrint(markerOptions.infoWindowText.title);
-//      controller.addMarker(markerOptions);
-    });
-  }
 }

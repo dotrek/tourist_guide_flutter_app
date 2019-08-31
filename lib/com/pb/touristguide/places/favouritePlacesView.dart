@@ -18,47 +18,39 @@ class _FavouritePlacesViewState extends State<FavouritePlacesView> {
           if (snapshot.hasData) {
             List<DocumentSnapshot> documents = snapshot.data.documents;
             return Container(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: documents.length,
-                padding: EdgeInsets.only(top: 10.0),
-                itemBuilder: (BuildContext context, int index) {
-                  var favoritePlace =
-                      FavoritePlaceModel.fromSnapshot(documents[index]);
-                  return Card(
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.place,
-                        color: Colors.lightGreen,
-                      ),
-                      title: Text(
-                        favoritePlace.name,
-                        textAlign: TextAlign.center,
-                      ),
-                      subtitle: favoritePlace.address != null
-                          ? Text(
-                              favoritePlace.address,
-                              textAlign: TextAlign.center,
-                            )
-                          : Container(),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => PlaceDetailView(
-                            placeId: favoritePlace.placeId,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            );
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: documents.length,
+                    padding: EdgeInsets.only(top: 10.0),
+                    itemBuilder: (BuildContext context, int index) {
+                      var favoritePlace =
+                          FavoritePlaceModel.fromSnapshot(documents[index]);
+                      return Card(
+                          child: ListTile(
+                              leading: Icon(
+                                Icons.place,
+                                color: Colors.lightGreen,
+                              ),
+                              title: Text(
+                                favoritePlace.name,
+                                textAlign: TextAlign.center,
+                              ),
+                              subtitle: favoritePlace.address != null
+                                  ? Text(
+                                      favoritePlace.address,
+                                      textAlign: TextAlign.center,
+                                    )
+                                  : Container(),
+                              onTap: () =>
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => PlaceDetailView(
+                                            placeId: favoritePlace.placeId,
+                                          )))));
+                    }));
           } else {
             return Center(
-              child: Container(
-                child: Text("Currently you have no favourite places"),
-              ),
-            );
+                child: Container(
+                    child: Text("Currently you have no favourite places")));
           }
         });
   }

@@ -76,7 +76,7 @@ class _TripViewState extends State<TripView> {
         .toList());
     List<LatLng> stepsList = routeSteps.map((step) => step.endLoc).toList();
     stepsList.insert(0, routeSteps.first.startLoc);
-    polylines.add(Polyline(polylineId: PolylineId(""), points: stepsList));
+    polylines.add(Polyline(polylineId: PolylineId(""), width: 5, points: stepsList));
     if (controller != null) {
       setState(() {
         controller.moveCamera(CameraUpdate.newLatLngBounds(

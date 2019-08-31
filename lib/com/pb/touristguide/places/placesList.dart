@@ -30,7 +30,7 @@ class _PlacesListViewState extends State<PlacesListView> {
         onPressed: () => selectedPlaces.length < 2
             ? null
             : initializeTripAndShowView(context, selectedPlaces),
-        label: Text("Create"),
+        label: Text("Create trip from \n selected places"),
         icon: Icon(Icons.create),
         backgroundColor:
             selectedPlaces.length < 2 ? Colors.transparent : Colors.lightGreen,

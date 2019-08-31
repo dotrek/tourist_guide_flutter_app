@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -119,9 +120,15 @@ class _MapViewState extends State<MapView> {
                                 context: context,
                                 builder: (context) => NearbyPlacesDialog());
                         Map<String, bool> typesMap = nearbyPreferences["types"];
-                        double radius = nearbyPreferences["radius"];
                         typesMap.removeWhere((k, v) => !v);
-                        getNearbyPlaces(typesMap.keys, radius);
+                        if (typesMap.isNotEmpty) {
+                          double radius = nearbyPreferences["radius"];
+                          getNearbyPlaces(typesMap.keys, radius);
+                        } else {
+                          FlushbarHelper.createError(
+                                  message: "No types were chosen")
+                              .show(context);
+                        }
                       },
                       onChanged: (place) {
                         debugPrint("Place: $place");
@@ -150,20 +157,25 @@ class _MapViewState extends State<MapView> {
       }
     }
     currentState.clearMarkers();
-    nearbyPlacesResult.forEach((psr) {
-      currentState.addMarker(PlaceInfo.fromPlacesSearchResult(psr));
-      debugPrint("location name: ${psr.name}");
-      debugPrint("location type: ${psr.types.first}");
-    });
-    setState(() {
-      this.placesList = nearbyPlacesResult.toList();
-    });
-    var pointsLatLngList = nearbyPlacesResult
-        .map((place) => MapUtil.getLatLngLocationOfPlace(place.geometry))
-        .toList();
-    LatLng southwest = MapUtil.getSouthwestPoint(pointsLatLngList);
-    LatLng northeast = MapUtil.getNorthEastPoint(pointsLatLngList);
-    currentState.animateToLocation(southwest, northeast);
+    if (nearbyPlacesResult.isNotEmpty) {
+      nearbyPlacesResult.forEach((psr) {
+        currentState.addMarker(PlaceInfo.fromPlacesSearchResult(psr));
+        debugPrint("location name: ${psr.name}");
+        debugPrint("location type: ${psr.types.first}");
+      });
+      setState(() {
+        this.placesList = nearbyPlacesResult.toList();
+      });
+      var pointsLatLngList = nearbyPlacesResult
+          .map((place) => MapUtil.getLatLngLocationOfPlace(place.geometry))
+          .toList();
+      LatLng southwest = MapUtil.getSouthwestPoint(pointsLatLngList);
+      LatLng northeast = MapUtil.getNorthEastPoint(pointsLatLngList);
+      currentState.animateToLocation(southwest, northeast);
+    } else {
+      FlushbarHelper.createInformation(message: "No matching places found")
+          .show(context);
+    }
   }
 
   void getCityPOI(String place) async {

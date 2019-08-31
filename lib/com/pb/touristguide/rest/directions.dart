@@ -10,12 +10,12 @@ class DirectionsRequest {
       "https://maps.googleapis.com/maps/api/directions/json?";
 
   static Future<http.Response> getRoute(List<LatLng> pointsList) async {
-    String origin = _getLatLngString(pointsList.first);
-    String destination = _getLatLngString(pointsList.last);
+    String origin = getLatLngString(pointsList.first);
+    String destination = getLatLngString(pointsList.last);
     String restOfWaypoints = "";
     pointsList.forEach((f) {
       if (f != pointsList.first && f != pointsList.last) {
-        restOfWaypoints += _getLatLngString(f) + "|";
+        restOfWaypoints += getLatLngString(f) + "|";
       }
     });
     if (restOfWaypoints.endsWith("|")) {
@@ -44,7 +44,7 @@ class DirectionsRequest {
         _defaultUrl + "origin=$origin&destination=$destination&mode=walking&key=$API_KEY");
   }
 
-  static String _getLatLngString(LatLng place) {
+  static String getLatLngString(LatLng place) {
     return "${place.latitude},${place.longitude}";
   }
 }
