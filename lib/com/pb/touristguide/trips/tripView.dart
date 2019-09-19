@@ -10,8 +10,10 @@ import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/trip.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeDetail.dart';
 import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
+import 'package:tourist_guide/com/pb/touristguide/rest/directions.dart';
 import 'package:tourist_guide/com/pb/touristguide/rest/firestoreDatabase.dart';
 import 'package:tourist_guide/com/pb/touristguide/trips/tripNameDialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 enum TripViewMode { CREATE, UPDATE }
 
@@ -51,6 +53,7 @@ class _TripViewState extends State<TripView> {
   _addMarker(PlaceInfo place) {
     markers.add(
       Marker(
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
         markerId: MarkerId(place.placeId),
         infoWindow: InfoWindow(
             title: place.name,
@@ -76,7 +79,8 @@ class _TripViewState extends State<TripView> {
         .toList());
     List<LatLng> stepsList = routeSteps.map((step) => step.endLoc).toList();
     stepsList.insert(0, routeSteps.first.startLoc);
-    polylines.add(Polyline(polylineId: PolylineId(""), width: 5, points: stepsList));
+    polylines
+        .add(Polyline(polylineId: PolylineId(""), width: 5, points: stepsList));
     if (controller != null) {
       setState(() {
         controller.moveCamera(CameraUpdate.newLatLngBounds(
@@ -146,7 +150,13 @@ class _TripViewState extends State<TripView> {
               },
               icon: Icon(Icons.add),
               label: Text("Create trip"))
-          : Container(),
+          : FloatingActionButton.extended(
+              icon: Icon(Icons.map),
+              label: Text("Run navigation"),
+              onPressed: () {
+                DirectionsRequest.openGoogleMapsApplication(widget.trip);
+              },
+            ),
       body: Container(
         child: Column(
           children: <Widget>[
