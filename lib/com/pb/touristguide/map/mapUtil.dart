@@ -26,15 +26,15 @@ class MapUtil {
     var currentUserLocation;
     try {
       currentUserLocation = await location.getLocation();
-      return LatLng(
-          currentUserLocation["latitude"], currentUserLocation["longitude"]);
+      LatLng latLng = LatLng(currentUserLocation.latitude, currentUserLocation.longitude);
+      return latLng;
     } on Exception {
       return null;
     }
   }
 
-  static LatLng getLatLngLocationOfPlace(PlacesSearchResult place) {
-    return LatLng(place.geometry.location.lat, place.geometry.location.lng);
+  static LatLng getLatLngLocationOfPlace(Geometry geometry) {
+    return LatLng(geometry.location.lat, geometry.location.lng);
   }
 
   static double getAverageLatitude(List<LatLng> pointsList) {
@@ -83,16 +83,5 @@ class MapUtil {
       maxLon = max(maxLon, point.longitude);
     });
     return LatLng(maxLat, maxLon);
-  }
-
-  static void appendMarkersToMapView(
-      GoogleMapController controller, List<PlacesSearchResult> placesList) {
-    placesList.forEach((place) {
-      final markerOptions = MarkerOptions(
-          position: getLatLngLocationOfPlace(place),
-          infoWindowText: InfoWindowText(place.name, place.types?.first));
-      debugPrint(markerOptions.infoWindowText.title);
-      controller.addMarker(markerOptions);
-    });
   }
 }

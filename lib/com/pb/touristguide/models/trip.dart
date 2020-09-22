@@ -1,24 +1,42 @@
-import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourist_guide/com/pb/touristguide/models/placeInfo.dart';
-import 'package:tourist_guide/com/pb/touristguide/models/route.dart';
+import 'package:tourist_guide/com/pb/touristguide/places/placeUtil.dart';
 
 class Trip {
-  String key;
-  List<RouteStep> routeSteps;
+  String _key;
+  String tripName;
   List<PlaceInfo> placesList;
+  int distance;
+  int durationInSeconds;
+  bool isDone;
+  String owner;
 
-  Trip(this.routeSteps, this.placesList);
-
-  Map<String, dynamic> toJson() =>
-      {"routeSteps": routeSteps.map((r)=>r.toJson()).toList(), "placesList": placesList.map((p)=>p.toJson()).toList()};
-
-  Trip.fromSnapshot(DataSnapshot snapshot){
-    List list = List.from(snapshot.value['routeSteps']);
-    List plist = List.from(snapshot.value['placesList']);
-    list.forEach((r)=>debugPrint(r.toString()));
-    plist.forEach((r)=>debugPrint(r.toString()));
-    routeSteps=list.map((r)=>RouteStep.fromJson(r.cast<String, dynamic>())).toList();
-    placesList=plist.map((p)=>PlaceInfo.fromJson(p.cast<String, dynamic>())).toList();
+  Trip(this.owner, this.distance, this.durationInSeconds, this.placesList,
+      this.isDone) {
+    this._key = PlaceUtil.generateKey();
   }
+
+  Map<String, dynamic> toJson() => {
+        "tripName": tripName,
+        "distance": distance,
+        "durationInSeconds": durationInSeconds,
+//        "placesList": placesList.map((p) => p.toJson()).toList(),
+        "isDone": isDone,
+        "owner": owner
+      };
+
+  Trip.fromSnapshot(DocumentSnapshot snapshot) {
+    _key = snapshot.documentID;
+    tripName = snapshot.data['tripName'];
+    distance = snapshot.data['distance'];
+    durationInSeconds = snapshot.data['durationInSeconds'];
+
+    isDone = snapshot.data['isDone'];
+    owner = snapshot.data['owner'];
+  }
+
+
+  String get key => _key;
+
+
 }

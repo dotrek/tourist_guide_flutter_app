@@ -1,28 +1,34 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:tourist_guide/com/pb/touristguide/MainAppWidget.dart';
 import 'package:tourist_guide/com/pb/touristguide/auth/baseAuth.dart';
 import 'package:tourist_guide/com/pb/touristguide/auth/signInWidget.dart';
+import 'package:tourist_guide/com/pb/touristguide/mainAppv2.dart';
 import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
-import 'package:tourist_guide/com/pb/touristguide/mapWithPlaces.dart';
 
 ///This API Key will be used for both the interactive maps as well as the static maps.
 
-const API_KEY = "***REMOVED***";
-var mapsPlaces = GoogleMapsPlaces(apiKey: API_KEY);
+var API_KEY = _getApiKey();
+
+Future<String> _getApiKey() async {
+  RemoteConfig remoteConfig = await RemoteConfig.instance;
+  await remoteConfig.fetch(expiration: Duration(hours: 1));
+  await remoteConfig.activateFetched();
+
+  return remoteConfig.getValue('maps_key').asString();
+}
+var mapsPlaces = API_KEY.then((key) => GoogleMapsPlaces(apiKey: key));
 var mapWidgetKey = new GlobalKey<MapWidgetState>();
-var mainKey = new GlobalKey<ScaffoldState>();
-var userLoginKey = new GlobalKey<SignInWidgetState>();
-List<PlacesSearchResult> selectedPlaces = List<PlacesSearchResult>();
+var tripViewMapWidgetKey = new GlobalKey<MapWidgetState>();
+var auth = Auth();
 List<Route> routes = List<Route>();
 bool floatingVisibility = false;
 String userLocationTitle = "Find places nearby";
 
 void main() {
-  runApp(MaterialApp(
+  runApp(MaterialApp(debugShowCheckedModeBanner: false,
+    routes: <String, WidgetBuilder>{
+      '/main': (context) => MainApp(),
+    },
     theme: customTheme,
     home: LogInWidgetContainer(),
   ));
@@ -33,24 +39,17 @@ class LogInWidgetContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: SignInWidget(
-          auth: Auth(),
-          onSignedIn: () =>
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                return MainAppWidget(actualWidget: MapsWithPlacesWidget(),);
-              }))),
+          auth: auth,
+          onSignedIn: () => Navigator.of(context).popAndPushNamed("/main")),
+//      child: MainApp(),
     );
   }
 }
 
 final customTheme = ThemeData(
-  primarySwatch: Colors.green,
-  brightness: Brightness.dark,
-  accentColor: Colors.green.shade900,
-  primaryColor: Colors.green,
-  dialogTheme: DialogTheme(
-    backgroundColor: Colors.green.shade800,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(45.0)),
-  ),
+  brightness: Brightness.light,
+  accentColor: Colors.lightGreen,
+  primaryColor: Colors.lightGreen,
   inputDecorationTheme: InputDecorationTheme(
     border: OutlineInputBorder(
       borderRadius: BorderRadius.all(Radius.circular(4.0)),
@@ -61,5 +60,3 @@ final customTheme = ThemeData(
     ),
   ),
 );
-
-
