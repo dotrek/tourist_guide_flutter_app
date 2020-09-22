@@ -7,8 +7,16 @@ import 'package:tourist_guide/com/pb/touristguide/map/map.dart';
 
 ///This API Key will be used for both the interactive maps as well as the static maps.
 
-const API_KEY = "***REMOVED***";
-var mapsPlaces = GoogleMapsPlaces(apiKey: API_KEY);
+var API_KEY = _getApiKey();
+
+Future<String> _getApiKey() async {
+  RemoteConfig remoteConfig = await RemoteConfig.instance;
+  await remoteConfig.fetch(expiration: Duration(hours: 1));
+  await remoteConfig.activateFetched();
+
+  return remoteConfig.getValue('maps_key').asString();
+}
+var mapsPlaces = API_KEY.then((key) => GoogleMapsPlaces(apiKey: key));
 var mapWidgetKey = new GlobalKey<MapWidgetState>();
 var tripViewMapWidgetKey = new GlobalKey<MapWidgetState>();
 var auth = Auth();
